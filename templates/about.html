@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeRoom - About Us</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #2a2a51;
+            color: #fff;
+        }
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .header .logo a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .header .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .header .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .header .nav-links a:hover {
+            color: #ffd700;
+        }
+        .header .nav-links a.active {
+            color: #ffd700;
+        }
+        .header .get-started {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .header .get-started:hover {
+            background-color: #45a049;
+        }
+        .about-content {
+            padding: 4rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .about-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3b3b7a;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .about-content p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .about-content h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #3b3b7a;
+            margin-top: 2rem;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 0.5rem;
+        }
+        .about-content ul {
+            list-style: none;
+            padding: 0;
+        }
+        .about-content ul li {
+            background-color: #fff;
+            border-left: 4px solid #ffd700;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .about-content ul li h3 {
+            margin: 0 0 0.5rem;
+            font-size: 1.25rem;
+            color: #3b3b7a;
+        }
+        .about-content .cta-button {
+            display: block;
+            width: 250px;
+            margin: 2rem auto 0;
+            background-color: #4CAF50;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .about-content .cta-button:hover {
+            background-color: #45a049;
+        }
+        .footer {
+            background-color: #2a2a51;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about') }}" class="active">About</a>
+            <a href="{{ url_for('playlists') }}">Playlists</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </nav>
+        <a href="{{ url_for('index') }}" class="get-started">Get Started</a>
+    </header>
+
+    <main class="about-content">
+        <h1>About VibeRoom</h1>
+        <p style="text-align: center; font-style: italic;">Connecting students with the perfect study soundtrack</p>
+
+        <h2>Our Mission</h2>
+        <p>VibeRoom was created specifically for students who understand that the right music can transform their study experience. We believe that music isn't just background noise - it's a powerful tool that can enhance focus, boost motivation, and create the perfect environment for learning.</p>
+
+        <h2>The Science Behind Music & Study</h2>
+        <p>Research shows that certain types of music can improve cognitive performance, memory retention, and concentration. Our carefully curated playlists are designed around three key study states:</p>
+        <ul>
+            <li>
+                <h3>Focus Mode</h3>
+                <p>Lo-fi beats and ambient sounds that enhance concentration without distraction.</p>
+            </li>
+            <li>
+                <h3>Chill Mode</h3>
+                <p>Relaxing melodies that reduce stress and create a calm study environment.</p>
+            </li>
+            <li>
+                <h3>Energized Mode</h3>
+                <p>Upbeat tracks that boost motivation during challenging study sessions.</p>
+            </li>
+        </ul>
+
+        <h2>Built by Students, for Students</h2>
+        <p>Our team understands the unique challenges of student life because we've been there. Late-night study sessions, exam stress, and the constant search for that perfect background music - we get it. That's why VibeRoom focuses on simplicity and effectiveness.</p>
+
+        <h2>Features</h2>
+        <ul>
+            <li>
+                <h3>Mood-Based Selection</h3>
+                <p>Choose playlists based on your current state of mind.</p>
+            </li>
+            <li>
+                <h3>Multi-Platform Support</h3>
+                <p>Access playlists on YouTube Music and Spotify.</p>
+            </li>
+            <li>
+                <h3>Mobile-Friendly</h3>
+                <p>Study anywhere with our responsive design.</p>
+            </li>
+            <li>
+                <h3>Quick Access</h3>
+                <p>Find your perfect study playlist in seconds.</p>
+            </li>
+        </ul>
+
+        <p style="text-align: center;">VibeRoom is more than just a playlist curator - it's a community of students helping each other succeed. Whether you're cramming for finals, working on projects, or just need some background music for daily study, we're here to help you find your perfect vibe.</p>
+        <a href="{{ url_for('index') }}" class="cta-button">Start Finding Your Vibe</a>
+    </main>
+
+    <footer class="footer">

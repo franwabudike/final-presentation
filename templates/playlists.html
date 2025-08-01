@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeRoom - All Playlists</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #2a2a51;
+            color: #fff;
+        }
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .header .logo a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .header .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .header .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .header .nav-links a:hover {
+            color: #ffd700;
+        }
+        .header .nav-links a.active {
+            color: #ffd700;
+        }
+        .header .get-started {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .header .get-started:hover {
+            background-color: #45a049;
+        }
+        .playlists-content {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .playlists-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3b3b7a;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .playlists-content p {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .filters .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .filters .filter-group label {
+            font-weight: 600;
+        }
+        .filters .filter-group select {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .playlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .playlist-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .playlist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+        .playlist-card h3 {
+            font-size: 1.25rem;
+            margin: 0 0 0.5rem;
+            color: #3b3b7a;
+        }
+        .playlist-card .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        .playlist-card .meta .mood {
+            background-color: #ffd700;
+            color: #3b3b7a;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+        .playlist-card .listen-now {
+            display: block;
+            text-align: center;
+            padding: 0.75rem;
+            background-color: #4CAF50;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .playlist-card .listen-now:hover {
+            background-color: #45a049;
+        }
+        .contribute-section {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 3rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .contribute-section h2 {
+            font-size: 1.75rem;
+            color: #3b3b7a;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .contribute-section p {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .contribute-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .contribute-form .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .contribute-form label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .contribute-form input, .contribute-form select {
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .contribute-form .add-playlist-btn {
+            background-color: #ffd700;
+            color: #3b3b7a;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .contribute-form .add-playlist-btn:hover {
+            background-color: #e6c200;
+        }
+        .footer {
+            background-color: #2a2a51;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('playlists') }}" class="active">Playlists</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </nav>
+        <a href="{{ url_for('index') }}" class="get-started">Get Started</a>
+    </header>
+
+    <main class="playlists-content">
+        <h1>All Playlists</h1>
+        <p>Browse our complete collection of study-optimized playlists</p>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="mood-filter">Filter by Mood:</label>
+                <select id="mood-filter">
+                    <option>All Moods</option>
+                    <option>Focus</option>
+                    <option>Chill</option>
+                    <option>Energized</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="platform-filter">Filter by Platform:</label>
+                <select id="platform-filter">
+                    <option>All Platforms</option>
+                    <option>YouTube Music</option>
+                    <option>Spotify</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="playlist-grid">
+            <!-- Example Playlist Cards -->
+            <div class="playlist-card">
+                <h3>Chill Hits</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Calm Vibes</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Chill Pop</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Lo-Fi Chill</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Chill Vibes</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Soft Chill Beats</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Relaxing Indie Music</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Chill Electronic Mix</h3>
+                <div class="meta">
+                    <span class="mood">chill</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Beast Mode</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Power Workout</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Adrenaline Workout</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Energy Booster</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Workout Music</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Motivational Mix</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>High Energy Electronic</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Pump Up Songs</h3>
+                <div class="meta">
+                    <span class="mood">energized</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Focus Flow</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Brain Food</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Deep Focus</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Intense Studying</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>spotify</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Lofi Focus Beats</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Deep Work Music</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Study Music - Focus & Concentration</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+            <div class="playlist-card">
+                <h3>Ambient Study Music</h3>
+                <div class="meta">
+                    <span class="mood">focus</span>
+                    <span>youtube</span>
+                </div>
+                <a href="#" class="listen-now">Listen Now</a>
+            </div>
+        </div>
+
+        <div class="contribute-section">
+            <h2>Contribute a Playlist</h2>
+            <p>Know a great study playlist? Share it with the community!</p>
+            <form class="contribute-form">
+                <div class="form-group">
+                    <label for="contribute-mood">Mood:</label>
+                    <select id="contribute-mood">
+                        <option>Select Mood</option>
+                        <option>Focus</option>
+                        <option>Chill</option>
+                        <option>Energized</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contribute-platform">Platform:</label>
+                    <select id="contribute-platform">
+                        <option>Select Platform</option>
+                        <option>YouTube Music</option>
+                        <option>Spotify</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="playlist-title">Playlist Title:</label>
+                    <input type="text" id="playlist-title" placeholder="e.g., Ultimate Focus Playlist">
+                </div>
+                <div class="form-group">
+                    <label for="playlist-url">Playlist URL:</label>
+                    <input type="url" id="playlist-url" placeholder="Paste the link here">
+                </div>
+                <button type="submit" class="add-playlist-btn">Add Playlist</button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
