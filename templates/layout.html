@@ -5,98 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}VibeRoom{% endblock %}</title>
     <style>
-        /* All your CSS goes here, or link to an external CSS file */
+        /* ... All of your CSS for the site, including the nav bar, goes here ... */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
-            color: #1a1a1a;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: #2a2a51;
-            color: #fff;
-        }
-        .header .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .header .logo a {
-            color: #fff;
-            text-decoration: none;
-        }
-        .header .nav-links {
-            display: flex;
-            gap: 1.5rem;
-        }
-        .header .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-        .header .nav-links a:hover {
-            color: #ffd700;
-        }
-        .header .nav-links a.active {
-            color: #ffd700;
-        }
-        .header .auth-links {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-        .header .get-started, .header .logout {
-            background-color: #4CAF50;
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        .header .get-started:hover, .header .logout:hover {
-            background-color: #45a049;
-        }
-        .header .user-name {
-            color: #ffd700;
-            font-weight: 600;
-        }
-        .footer {
-            background-color: #2a2a51;
-            color: #fff;
-            text-align: center;
-            padding: 1rem;
-            font-size: 0.9rem;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #1a1a1a; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #2a2a51; color: #fff; }
+        .header .logo { font-size: 1.5rem; font-weight: 700; }
+        .header .logo a { color: #fff; text-decoration: none; }
+        .header .nav-links { display: flex; gap: 1.5rem; }
+        .header .nav-links a { color: #fff; text-decoration: none; font-weight: 600; transition: color 0.3s ease; }
+        .header .nav-links a:hover { color: #ffd700; }
+        .header .nav-links a.active { color: #ffd700; }
+        .header .auth-links { display: flex; gap: 1.5rem; align-items: center; }
+        .header .get-started, .header .logout { background-color: #4CAF50; color: #fff; padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-weight: 600; transition: background-color 0.3s ease; }
+        .header .get-started:hover, .header .logout:hover { background-color: #45a049; }
+        .header .user-name { color: #ffd700; font-weight: 600; }
+        .footer { background-color: #2a2a51; color: #fff; text-align: center; padding: 1rem; font-size: 0.9rem; position: fixed; bottom: 0; width: 100%; }
+        main.hero { background-color: #3b3b7a; color: #fff; padding: 8rem 2rem; text-align: center; }
+        main.hero h1 { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; }
+        main.hero h1 span { color: #ffd700; }
+        main.hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem; }
+        main.hero .platforms { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 3rem; }
+        main.hero .platform-button { background-color: #ffd700; color: #3b3b7a; padding: 1rem 2rem; border-radius: 30px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: background-color 0.3s ease; }
+        main.hero .platform-button:hover { background-color: #e6c200; }
+        main.hero .form-container { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        main.hero .form-container h3 { font-size: 1rem; font-weight: 400; color: #ccc; }
+        main.hero .form-row { display: flex; gap: 1rem; align-items: center; }
+        main.hero .dropdown, main.hero .button { padding: 0.75rem 1.5rem; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+        main.hero .dropdown { background-color: #2a2a51; color: #fff; border: 1px solid #2a2a51; appearance: none; text-align: center; min-width: 150px; }
+        main.hero .button { background-color: #ffd700; color: #3b3b7a; border: none; transition: background-color 0.3s ease; }
+        main.hero .button:hover { background-color: #e6c200; }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
-        <nav class="nav-links">
-            <a href="{{ url_for('index') }}" class="{% if request.path == url_for('index') %}active{% endif %}">Home</a>
-            <a href="{{ url_for('about') }}" class="{% if request.path == url_for('about') %}active{% endif %}">About</a>
-            <a href="{{ url_for('playlists') }}" class="{% if request.path == url_for('playlists') %}active{% endif %}">Playlists</a>
-            <a href="{{ url_for('contact') }}" class="{% if request.path == url_for('contact') %}active{% endif %}">Contact</a>
-        </nav>
-        <div class="auth-links">
-            {% if current_user %}
-            <span class="user-name">{{ current_user.username }}</span>
-            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
-            {% else %}
-            <a href="{{ url_for('login') }}" class="get-started">Get Started</a>
-            {% endif %}
-        </div>
-    </header>
+    {% include 'navbar.html' %}
 
     <main class="content">
         {% block content %}{% endblock %}

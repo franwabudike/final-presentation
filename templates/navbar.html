@@ -1,0 +1,17 @@
+<header class="header">
+    <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
+    <nav class="nav-links">
+        <a href="{{ url_for('index') }}" class="{% if request.path == url_for('index') %}active{% endif %}">Home</a>
+        <a href="{{ url_for('about') }}" class="{% if request.path == url_for('about') %}active{% endif %}">About</a>
+        <a href="{{ url_for('playlists') }}" class="{% if request.path == url_for('playlists') %}active{% endif %}">Playlists</a>
+        <a href="{{ url_for('contact') }}" class="{% if request.path == url_for('contact') %}active{% endif %}">Contact</a>
+    </nav>
+    <div class="auth-links">
+        {% if current_user %}
+        <span class="user-name">{{ current_user.username }}</span>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+        {% else %}
+        <a href="{{ url_for('auth') }}" class="get-started">Get Started</a>
+        {% endif %}
+    </div>
+</header>
