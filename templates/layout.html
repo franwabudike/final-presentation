@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VibeRoom{% endblock %}</title>
+    <style>
+        /* All your CSS goes here, or link to an external CSS file */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #2a2a51;
+            color: #fff;
+        }
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .header .logo a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .header .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .header .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .header .nav-links a:hover {
+            color: #ffd700;
+        }
+        .header .nav-links a.active {
+            color: #ffd700;
+        }
+        .header .auth-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .header .get-started, .header .logout {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .header .get-started:hover, .header .logout:hover {
+            background-color: #45a049;
+        }
+        .header .user-name {
+            color: #ffd700;
+            font-weight: 600;
+        }
+        .footer {
+            background-color: #2a2a51;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}" class="{% if request.path == url_for('index') %}active{% endif %}">Home</a>
+            <a href="{{ url_for('about') }}" class="{% if request.path == url_for('about') %}active{% endif %}">About</a>
+            <a href="{{ url_for('playlists') }}" class="{% if request.path == url_for('playlists') %}active{% endif %}">Playlists</a>
+            <a href="{{ url_for('contact') }}" class="{% if request.path == url_for('contact') %}active{% endif %}">Contact</a>
+        </nav>
+        <div class="auth-links">
+            {% if current_user %}
+            <span class="user-name">{{ current_user.username }}</span>
+            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="get-started">Get Started</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        © 2025 VibeRoom. All rights reserved.
+    </footer>
+</body>
+</html>
