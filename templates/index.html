@@ -155,7 +155,12 @@
             <a href="{{ url_for('playlists') }}">Playlists</a>
             <a href="{{ url_for('contact') }}">Contact</a>
         </nav>
-        <a href="{{ url_for('login') }}" class="get-started">Get Started</a>
+        {% if current_user.is_authenticated %}
+            <a class="profile-name">{{ current_user.username }}</a>
+            <a href = "{{ url_for('logout') }}" class="get-started">Logout</a>
+        {% else %}
+        <a href="{{ url_for('account') }}" class="get-started">Get Started</a>
+        {% endif %}
     </header>
 
     <main class="hero">
