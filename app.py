@@ -33,31 +33,32 @@ def auth():
     return render_template('auth.html')
 
 # Handles the login form submission
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    if users.get(username) == password:
-        session['user_info'] = {'username': username}
-        return redirect(url_for('index'))
-    return redirect(url_for('auth'))
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if users.get(username) == password:
+            session['user_info'] = {'username': username}
+            return redirect(url_for('index'))
+        return redirect(url_for('auth'))  # or return an error message
+    # This will show the login page when accessed via GET
+    return render_template('login.html')
+
 
 # Handles the registration form submission
-@app.route('/register', methods=['POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    # Check if the username already exists
-    if username in users:
-        # You might want to show a flash message here
-        return 'Username already exists!', 409
-    
-    # Register the new user
-    users[username] = password
-    
-    # Log the new user in automatically and redirect to the home page
-    session['user_info'] = {'username': username}
-    return redirect(url_for('index'))
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username in users:
+            return 'Username already exists!', 409
+        users[username] = password
+        session['user_info'] = {'username': username}
+        return redirect(url_for('index'))
+    return render_template('register.html')  # if you have a register.html
+
 
 @app.route('/logout')
 def logout():
