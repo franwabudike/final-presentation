@@ -4,187 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VibeRoom - About Us</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
-            color: #1a1a1a;
+        .about-section {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 1rem;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: #2a2a51;
-            color: #fff;
-        }
-        .header .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .header .logo a {
-            color: #fff;
-            text-decoration: none;
-        }
-        .header .nav-links {
-            display: flex;
-            gap: 1.5rem;
-        }
-        .header .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-        .header .nav-links a:hover {
-            color: #ffd700;
-        }
-        .header .nav-links a.active {
-            color: #ffd700;
-        }
-        .header .get-started {
-            background-color: #4CAF50;
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        .header .get-started:hover {
-            background-color: #45a049;
-        }
-        .about-content {
-            padding: 4rem 2rem;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .about-content h1 {
+        .about-section h1 {
+            text-align: center;
             font-size: 2.5rem;
-            font-weight: 700;
             color: #3b3b7a;
-            margin-bottom: 0.5rem;
-            text-align: center;
+            margin-bottom: 2rem;
         }
-        .about-content p {
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-        .about-content h2 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: #3b3b7a;
+        .about-section h2 {
+            font-size: 1.5rem;
+            color: #2a2a51;
+            background-color: #e8e8f9;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
             margin-top: 2rem;
-            border-bottom: 2px solid #ffd700;
-            padding-bottom: 0.5rem;
-        }
-        .about-content ul {
-            list-style: none;
-            padding: 0;
-        }
-        .about-content ul li {
-            background-color: #fff;
-            border-left: 4px solid #ffd700;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .about-content ul li h3 {
-            margin: 0 0 0.5rem;
-            font-size: 1.25rem;
-            color: #3b3b7a;
-        }
-        .about-content .cta-button {
-            display: block;
-            width: 250px;
-            margin: 2rem auto 0;
-            background-color: #4CAF50;
-            color: #fff;
             text-align: center;
-            padding: 1rem;
-            border-radius: 30px;
+        }
+        .about-section p {
+            background-color: #ffffff;
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            line-height: 1.7;
+        }
+        .about-section a {
+            color: #4CAF50;
+            font-weight: bold;
             text-decoration: none;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
         }
-        .about-content .cta-button:hover {
-            background-color: #45a049;
-        }
-        .footer {
-            background-color: #2a2a51;
-            color: #fff;
-            text-align: center;
-            padding: 1rem;
-            font-size: 0.9rem;
+        .about-section a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
-        <nav class="nav-links">
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('about') }}" class="active">About</a>
-            <a href="{{ url_for('playlists') }}">Playlists</a>
-            <a href="{{ url_for('contact') }}">Contact</a>
-        </nav>
-        <a href="{{ url_for('index') }}" class="get-started">Get Started</a>
-    </header>
+    <div class="content-wrapper">
+        {% include 'navbar.html' %}
 
-    <main class="about-content">
-        <h1>About VibeRoom</h1>
-        <p style="text-align: center; font-style: italic;">Connecting students with the perfect study soundtrack</p>
+        <main class="main-content">
+            <section class="about-section">
+                <h1>Welcome to VibeRoom 🎵</h1>
 
-        <h2>Our Mission</h2>
-        <p>VibeRoom was created specifically for students who understand that the right music can transform their study experience. We believe that music isn't just background noise - it's a powerful tool that can enhance focus, boost motivation, and create the perfect environment for learning.</p>
+                <p>
+                    Studying doesn’t have to be silent or stressful. Over <strong>90% of students</strong> say music helps them manage stress and stay focused, 
+                    but finding the right playlist for your mood or task isn’t always easy. That’s where VibeRoom comes in.
+                </p>
 
-        <h2>The Science Behind Music & Study</h2>
-        <p>Research shows that certain types of music can improve cognitive performance, memory retention, and concentration. Our carefully curated playlists are designed around three key study states:</p>
-        <ul>
-            <li>
-                <h3>Focus Mode</h3>
-                <p>Lo-fi beats and ambient sounds that enhance concentration without distraction.</p>
-            </li>
-            <li>
-                <h3>Chill Mode</h3>
-                <p>Relaxing melodies that reduce stress and create a calm study environment.</p>
-            </li>
-            <li>
-                <h3>Energized Mode</h3>
-                <p>Upbeat tracks that boost motivation during challenging study sessions.</p>
-            </li>
-        </ul>
+                <h2>Our Mission</h2>
+                <p>
+                    VibeRoom helps students unlock the power of sound by curating mood-based music playlists tailored to how you're feeling
+                    whether you're grinding out a paper, unwinding after exams, or teaming up in a group study session.
+                </p>
 
-        <h2>Built by Students, for Students</h2>
-        <p>Our team understands the unique challenges of student life because we've been there. Late-night study sessions, exam stress, and the constant search for that perfect background music - we get it. That's why VibeRoom focuses on simplicity and effectiveness.</p>
+                <h2>How It Works</h2>
+                <p>
+                    Just choose your current <strong>vibe</strong>: Focused, Chill, or Energized and we’ll match you with playlists that help boost 
+                    concentration or promote relaxation. You can even filter by mood or weather to listen when you feel most comfortable.
+                </p>
+                <p>
+                    Want to study together? VibeRoom also supports group rooms where you and friends can sync up and listen to the same playlist at the same time.
+                </p>
 
-        <h2>Features</h2>
-        <ul>
-            <li>
-                <h3>Mood-Based Selection</h3>
-                <p>Choose playlists based on your current state of mind.</p>
-            </li>
-            <li>
-                <h3>Multi-Platform Support</h3>
-                <p>Access playlists on YouTube Music and Spotify.</p>
-            </li>
-            <li>
-                <h3>Mobile-Friendly</h3>
-                <p>Study anywhere with our responsive design.</p>
-            </li>
-            <li>
-                <h3>Quick Access</h3>
-                <p>Find your perfect study playlist in seconds.</p>
-            </li>
-        </ul>
+                <h2>Why It Matters?</h2>
+                <p>
+                    According to <a href="https://www.fnu.edu/benefits-studying-music/" target="_blank">multiple studies</a>, the right kind of music can improve memory, 
+                    reduce anxiety, and enhance learning. VibeRoom makes it easier to access those benefits all in one click.
+                </p>
 
-        <p style="text-align: center;">VibeRoom is more than just a playlist curator - it's a community of students helping each other succeed. Whether you're cramming for finals, working on projects, or just need some background music for daily study, we're here to help you find your perfect vibe.</p>
-        <a href="{{ url_for('index') }}" class="cta-button">Start Finding Your Vibe</a>
-    </main>
+                <p>
+                    Whether you're cramming for finals or winding down before bed, VibeRoom helps you find your perfect study vibe effortlessly.
+                </p>
 
-    <footer class="footer">
+                <p><strong>Let’s make studying something you look forward to! 🎶</strong></p>
+            </section>
+        </main>
+
+        {% include 'footer.html' %}
+    </div>
+
+    <script src="{{ url_for('static', filename='header-footer.js') }}"></script>
+</body>
+</html>

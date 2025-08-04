@@ -1,63 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>VibeRoom - Contact Us</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .contact-form-wrapper {
+            max-width: 700px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .contact-form-wrapper h2 {
+            text-align: center;
+            color: #3b3b7a;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-form label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .contact-form textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .contact-form button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .contact-form button:hover {
+            background-color: #45a049;
+        }
+
+        .flash-message {
+            max-width: 700px;
+            margin: 2rem auto 0;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            background-color: #e6ffe6;
+            color: #207520;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid #b5ebb5;
+        }
+    </style>
 </head>
 <body>
     <div class="content-wrapper">
-        <div id="header-placeholder"></div>
+        {% include 'navbar.html' %}
+
         <main class="contact-content main-content">
             <h1>Get in Touch</h1>
-            <p>We'd love to hear from you! Share feedback, suggestions, or just say hello.</p>
-            <div class="contact-sections">
-                <div class="contact-info">
-                    <h2>Contact Information</h2>
-                    <div class="info-item">
-                        <h3>General Feedback</h3>
-                        <p>Have suggestions for improving VibeRoom? We're always looking to make the student experience better.</p>
+            <p style="text-align: center; max-width: 600px; margin: 0 auto 2rem;">
+                We'd love to hear from you! Whether it's feedback, feature ideas, bug reports, or just a hello — drop us a message.
+            </p>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-message">
+                        {{ messages[0] }}
                     </div>
-                    <div class="info-item">
-                        <h3>Playlist Suggestions</h3>
-                        <p>Know amazing study playlists we're missing? Send them our way and help build the ultimate student music library.</p>
+                {% endif %}
+            {% endwith %}
+
+            <div class="contact-form-wrapper">
+                <h2>Contact Form</h2>
+                <form method="POST" action="{{ url_for('contact') }}" class="contact-form">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" required placeholder="e.g., Jordan Taylor" />
+
+                    <label for="email">Your Email</label>
+                    <input type="email" id="email" name="email" required placeholder="e.g., jordan@example.com" />
+
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required placeholder="e.g., Playlist suggestion" />
+
+                    <label for="message">Your Message</label>
+                    <textarea id="message" name="message" required placeholder="Type your message here..."></textarea>
+
+                    <div style="text-align: center;">
+                        <button type="submit">Send Message</button>
                     </div>
-                    <div class="info-item">
-                        <h3>Technical Issues</h3>
-                        <p>Experiencing bugs or technical problems? Let us know so we can fix them quickly.</p>
-                    </div>
-                    <div class="info-item">
-                        <h3>Partnerships</h3>
-                        <p>Interested in collaborating or partnering with VibeRoom? We're always open to working with student-focused organizations.</p>
-                    </div>
-                </div>
-                <div class="contact-form-section">
-                    <h2>Send us a Message</h2>
-                    <form class="contact-form">
-                        <div class="form-group">
-                            <label for="your-name">Your Name:</label>
-                            <input type="text" id="your-name" placeholder="e.g., Jane Doe" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="your-email">Your Email:</label>
-                            <input type="email" id="your-email" placeholder="e.g., jane.doe@example.com" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="message-subject">Subject:</label>
-                            <input type="text" id="message-subject" placeholder="e.g., Playlist Suggestion" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="your-message">Your Message:</label>
-                            <textarea id="your-message" placeholder="Write your message here..." required></textarea>
-                        </div>
-                        <button type="submit" class="send-btn">Send Message</button>
-                    </form>
-                </div>
+                </form>
             </div>
         </main>
-        <div id="footer-placeholder"></div>
+
+        {% include 'footer.html' %}
     </div>
-    <script src="header-footer.js"></script>
+    <script src="{{ url_for('static', filename='header-footer.js') }}"></script>
 </body>
 </html>
+

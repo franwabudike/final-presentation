@@ -1,77 +1,16 @@
 <header class="header">
-    <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
+    <div class="logo"><a href="{{ url_for('home') }}">🎷 VibeRoom</a></div>
     <nav class="nav-links">
-        <a href="{{ url_for('index') }}" class="active">Home</a>
-        <a href="{{ url_for('about') }}">About</a>
-        <a href="{{ url_for('playlists') }}">Playlists</a>
-        <a href="{{ url_for('contact') }}">Contact</a>
+        <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        <a href="{{ url_for('playlists') }}" class="nav-link">Playlists</a>
+        <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
     </nav>
+
     {% if user %}
-    <div class="user-info">
-        <span class="user-profile">
-            <img src="{{ user.profile_picture_url }}" alt="Profile Picture" class="profile-pic">
-        </span>
+        <span class="user-name">Hi, {{ user }}</span>
         <a href="{{ url_for('logout') }}" class="get-started">Logout</a>
-    </div>
     {% else %}
-    <a href="{{ url_for('login') }}" class="get-started">Get Started</a>
+        <a href="{{ url_for('auth') }}" class="get-started">Get Started</a>
     {% endif %}
 </header>
-
-<style>
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 2rem;
-        background-color: #2a2a51;
-        color: #fff;
-    }
-    .header .logo {
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-    .header .logo a {
-        color: #fff;
-        text-decoration: none;
-    }
-    .header .nav-links {
-        display: flex;
-        gap: 1.5rem;
-    }
-    .header .nav-links a {
-        color: #fff;
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.3s ease;
-    }
-    .header .nav-links a:hover {
-        color: #ffd700;
-    }
-    .header .nav-links a.active {
-        color: #ffd700;
-    }
-    .header .get-started {
-        background-color: #4CAF50;
-        color: #fff;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: background-color 0.3s ease;
-    }
-    .header .get-started:hover {
-        background-color: #45a049;
-    }
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .user-info .profile-pic {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 2px solid #fff;
-    }
-</style>

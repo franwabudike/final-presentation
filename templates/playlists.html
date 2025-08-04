@@ -4,11 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>VibeRoom - All Playlists</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="content-wrapper">
-        <div id="header-placeholder"></div>
+        {% include 'navbar.html' %}
+
         <main class="playlists-content main-content">
             <h1>All Playlists</h1>
             <p>Browse our complete collection of study-optimized playlists</p>
@@ -17,119 +18,33 @@
                 <div class="filter-group">
                     <label for="mood-filter">Filter by Mood:</label>
                     <select id="mood-filter">
-                        <option value="all">All Moods</option>
-                        <option value="focus">Focus</option>
-                        <option value="chill">Chill</option>
-                        <option value="energized">Energized</option>
+                        <option value="all" {% if mood == 'all' %}selected{% endif %}>All Moods</option>
+                        <option value="focus" {% if mood == 'focus' %}selected{% endif %}>Focus</option>
+                        <option value="chill" {% if mood == 'chill' %}selected{% endif %}>Chill</option>
+                        <option value="energized" {% if mood == 'energized' %}selected{% endif %}>Energized</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label for="platform-filter">Filter by Platform:</label>
                     <select id="platform-filter">
-                        <option value="all">All Platforms</option>
-                        <option value="youtube">YouTube Music</option>
-                        <option value="spotify">Spotify</option>
+                        <option value="all" {% if platform == 'all' %}selected{% endif %}>All Platforms</option>
+                        <option value="youtube" {% if platform == 'youtube' %}selected{% endif %}>YouTube Music</option>
+                        <option value="spotify" {% if platform == 'spotify' %}selected{% endif %}>Spotify</option>
                     </select>
                 </div>
             </div>
 
             <div class="playlist-grid">
+                {% for playlist in playlists %}
                 <div class="playlist-card">
-                    <h3>Chill Vibes</h3>
+                    <h3>{{ playlist.title }}</h3>
                     <div class="meta">
-                        <span class="mood">chill</span>
-                        <span>youtube</span>
+                        <span class="mood">{{ playlist.mood }}</span>
+                        <span>{{ playlist.platform }}</span>
                     </div>
-                    <a href="#" class="listen-now">Listen Now</a>
+                    <a href="{{ playlist.url }}" class="listen-now" target="_blank">Listen Now</a>
                 </div>
-                <div class="playlist-card">
-                    <h3>Soft Chill Beats</h3>
-                    <div class="meta">
-                        <span class="mood">chill</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Relaxing Indie Music</h3>
-                    <div class="meta">
-                        <span class="mood">chill</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Chill Electronic Mix</h3>
-                    <div class="meta">
-                        <span class="mood">chill</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Workout Music</h3>
-                    <div class="meta">
-                        <span class="mood">energized</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Motivational Mix</h3>
-                    <div class="meta">
-                        <span class="mood">energized</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>High Energy Electronic</h3>
-                    <div class="meta">
-                        <span class="mood">energized</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Pump Up Songs</h3>
-                    <div class="meta">
-                        <span class="mood">energized</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Lofi Focus Beats</h3>
-                    <div class="meta">
-                        <span class="mood">focus</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Deep Work Music</h3>
-                    <div class="meta">
-                        <span class="mood">focus</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Study Music - Focus & Concentration</h3>
-                    <div class="meta">
-                        <span class="mood">focus</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
-                <div class="playlist-card">
-                    <h3>Ambient Study Music</h3>
-                    <div class="meta">
-                        <span class="mood">focus</span>
-                        <span>youtube</span>
-                    </div>
-                    <a href="#" class="listen-now">Listen Now</a>
-                </div>
+                {% endfor %}
             </div>
 
             <div class="contribute-section">
@@ -165,10 +80,10 @@
                 </form>
             </div>
         </main>
-        <div id="footer-placeholder"></div>
+
+        {% include 'footer.html' %}
     </div>
-    
-    <script src="header-footer.js"></script>
+
     <script>
         document.getElementById("mood-filter").addEventListener("change", redirectToPlaylists);
         document.getElementById("platform-filter").addEventListener("change", redirectToPlaylists);
@@ -176,9 +91,10 @@
         function redirectToPlaylists() {
             const mood = document.getElementById("mood-filter").value;
             const platform = document.getElementById("platform-filter").value;
-            const url = `playlists.html?mood=${mood}&platform=${platform}`;
+            const url = `/playlists?mood=${mood}&platform=${platform}`;
             window.location.href = url;
         }
     </script>
 </body>
 </html>
+
