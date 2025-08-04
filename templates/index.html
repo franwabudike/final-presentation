@@ -4,242 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VibeRoom - Find Your Study Vibe</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
-            color: #1a1a1a;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: #2a2a51;
-            color: #fff;
-        }
-        .header .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .header .logo a {
-            color: #fff;
-            text-decoration: none;
-        }
-        .header .nav-links {
-            display: flex;
-            gap: 1.5rem;
-        }
-        .header .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-        .header .nav-links a:hover,
-        .header .nav-links a.active {
-            color: #ffd700;
-        }
-        .header .get-started {
-            background-color: #4CAF50;
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        .header .get-started:hover {
-            background-color: #45a049;
-        }
-        .hero {
-            background-color: #3b3b7a;
-            color: #fff;
-            padding: 8rem 2rem;
-            text-align: center;
-        }
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .hero h1 span {
-            color: #ffd700;
-        }
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto 2rem;
-        }
-        .hero .platforms {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-        .hero .platform-button {
-            background-color: #ffd700;
-            color: #3b3b7a;
-            padding: 1rem 2rem;
-            border-radius: 30px;
-            font-weight: 600;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.3s ease;
-        }
-        .hero .platform-button:hover {
-            background-color: #e6c200;
-        }
-
-        /* New styles for the container and weather showcase */
-        .hero-content-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .hero .form-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-        .hero .form-container h3 {
-            font-size: 1rem;
-            font-weight: 400;
-            color: #ccc;
-        }
-        .hero .form-container form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-        .hero .dropdown, .hero .button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .hero .dropdown {
-            background-color: #2a2a51;
-            color: #fff;
-            border: 1px solid #2a2a51;
-            appearance: none;
-            text-align: center;
-            min-width: 150px;
-        }
-        .hero .button {
-            background-color: #ffd700;
-            color: #3b3b7a;
-            border: none;
-            transition: background-color 0.3s ease;
-        }
-        .hero .button:hover {
-            background-color: #e6c200;
-        }
-
-        /* Weather showcase specific styles */
-        .weather-showcase {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 250px;
-            text-align: center;
-        }
-        .weather-showcase h3 {
-            margin: 0;
-            font-size: 1.2rem;
-        }
-        .weather-showcase p {
-            margin: 0;
-            font-size: 1rem;
-        }
-        .weather-showcase .temperature {
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-        .weather-showcase .description {
-            text-transform: capitalize;
-            font-weight: 600;
-        }
-        .footer {
-            background-color: #2a2a51;
-            color: #fff;
-            text-align: center;
-            padding: 1rem;
-            font-size: 0.9rem;
-        }
-    </style>
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <header class="header">
-        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
-        <nav class="nav-links">
-            <a href="{{ url_for('index') }}" class="active">Home</a>
-            <a href="{{ url_for('about') }}">About</a>
-            <a href="{{ url_for('playlists') }}">Playlists</a>
-            <a href="{{ url_for('contact') }}">Contact</a>
-        </nav>
-        {% if 'user_id' in session %}
-            <a href="{{ url_for('logout') }}" class="get-started">Logout</a>
-        {% else %}
-            <a href="{{ url_for('login') }}" class="get-started">Get Started</a>
-        {% endif %}
-    </header>
-
-    <main class="hero">
-        <h1>Find Your Study <span>Vibe</span></h1>
-        <p>Mood-based music playlists designed for students to enhance focus, productivity, and relaxation</p>
-        <div class="platforms">
-            <a href="#" class="platform-button">🎥 YouTube Music</a>
-        </div>
-        
-        <div class="hero-content-container">
-            <div class="form-container">
-                <h3>How are you feeling today?</h3>
-                <form method="GET" action="{{ url_for('playlists') }}">
-                    <select name="mood" class="dropdown" required>
-                        <option value="focused">Focused</option>
-                        <option value="chill">Chill</option>
-                        <option value="energized">Energized</option>
-                    </select>
-                    <button type="submit" class="button">Get My Vibe</button>
-                </form>
+    <div class="content-wrapper">
+        <div id="header-placeholder"></div>
+        <main class="hero main-content">
+            <h1>Find Your Study <span>Vibe</span></h1>
+            <p>Mood-based music playlists designed for students to enhance focus, productivity, and relaxation</p>
+            <div class="platforms">
+                <a href="#" class="platform-button">🎥 YouTube Music</a>
             </div>
-
-            <div class="weather-showcase">
-                <h3>Current Weather</h3>
-                <p id="location">Loading location...</p>
-                <div class="temperature" id="temperature">...</div>
-                <p id="weather-description">...</p>
+            <div class="hero-content-container">
+                <div class="form-container">
+                    <h3>How are you feeling today?</h3>
+                    <form method="GET" action="playlists.html">
+                        <select name="mood" class="dropdown" required>
+                            <option value="focused">Focused</option>
+                            <option value="chill">Chill</option>
+                            <option value="energized">Energized</option>
+                        </select>
+                        <button type="submit" class="button">Get My Vibe</button>
+                    </form>
+                </div>
+                <div class="weather-showcase">
+                    <h3>Current Weather</h3>
+                    <p id="location">Loading location...</p>
+                    <div class="temperature" id="temperature">...</div>
+                    <p id="weather-description">...</p>
+                </div>
             </div>
-        </div>
-    </main>
-
-    <footer class="footer">
-        © 2025 VibeRoom. All rights reserved.
-    </footer>
-
+        </main>
+        <div id="footer-placeholder"></div>
+    </div>
+    
+    <script src="static/header-footer.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const apiKey = 'YOUR_API_KEY_HERE'; // ⚠️ Replace with your actual API key
             const locationElement = document.getElementById('location');
             const temperatureElement = document.getElementById('temperature');
             const descriptionElement = document.getElementById('weather-description');
-
+            
+            // ... (Your existing weather script) ...
             function fetchWeather(lat, lon) {
                 const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
                 
@@ -254,7 +61,7 @@
                         const city = data.name;
                         const temp = Math.round(data.main.temp);
                         const description = data.weather[0].description;
-
+                        
                         locationElement.textContent = `📍 ${city}`;
                         temperatureElement.innerHTML = `${temp}°C`;
                         descriptionElement.textContent = description;
