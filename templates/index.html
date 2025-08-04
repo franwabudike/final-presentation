@@ -39,9 +39,7 @@
             font-weight: 600;
             transition: color 0.3s ease;
         }
-        .header .nav-links a:hover {
-            color: #ffd700;
-        }
+        .header .nav-links a:hover,
         .header .nav-links a.active {
             color: #ffd700;
         }
@@ -97,6 +95,16 @@
         .hero .platform-button:hover {
             background-color: #e6c200;
         }
+
+        /* New styles for the container and weather showcase */
+        .hero-content-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
         .hero .form-container {
             display: flex;
             flex-direction: column;
@@ -108,10 +116,11 @@
             font-weight: 400;
             color: #ccc;
         }
-        .hero .form-row {
+        .hero .form-container form {
             display: flex;
-            gap: 1rem;
+            flex-direction: column;
             align-items: center;
+            gap: 1rem;
         }
         .hero .dropdown, .hero .button {
             padding: 0.75rem 1.5rem;
@@ -137,6 +146,35 @@
         .hero .button:hover {
             background-color: #e6c200;
         }
+
+        /* Weather showcase specific styles */
+        .weather-showcase {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 250px;
+            text-align: center;
+        }
+        .weather-showcase h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        .weather-showcase p {
+            margin: 0;
+            font-size: 1rem;
+        }
+        .weather-showcase .temperature {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .weather-showcase .description {
+            text-transform: capitalize;
+            font-weight: 600;
+        }
         .footer {
             background-color: #2a2a51;
             color: #fff;
@@ -148,20 +186,19 @@
 </head>
 <body>
     <header class="header">
-    <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
-    <nav class="nav-links">
-        <a href="{{ url_for('index') }}" class="active">Home</a>
-        <a href="{{ url_for('about') }}">About</a>
-        <a href="{{ url_for('playlists') }}">Playlists</a>
-        <a href="{{ url_for('contact') }}">Contact</a>
-    </nav>
-    {% if 'user_id' in session %}
-        <a href="{{ url_for('logout') }}" class="get-started">Logout</a>
-    {% else %}
-        <a href="{{ url_for('login') }}" class="get-started">Get Started</a>
-    {% endif %}
-</header>
-
+        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}" class="active">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('playlists') }}">Playlists</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </nav>
+        {% if 'user_id' in session %}
+            <a href="{{ url_for('logout') }}" class="get-started">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="get-started">Get Started</a>
+        {% endif %}
+    </header>
 
     <main class="hero">
         <h1>Find Your Study <span>Vibe</span></h1>
@@ -169,15 +206,25 @@
         <div class="platforms">
             <a href="#" class="platform-button">🎥 YouTube Music</a>
         </div>
-        <div class="form-container">
-            <h3>How are you feeling today?</h3>
-            <div class="form-row">
-                <select class="dropdown">
-                    <option>Focused</option>
-                    <option>Chill</option>
-                    <option>Energized</option>
-                </select>
-                <button class="button">Get My Vibe</button>
+        
+        <div class="hero-content-container">
+            <div class="form-container">
+                <h3>How are you feeling today?</h3>
+                <form method="GET" action="{{ url_for('playlists') }}">
+                    <select name="mood" class="dropdown" required>
+                        <option value="focused">Focused</option>
+                        <option value="chill">Chill</option>
+                        <option value="energized">Energized</option>
+                    </select>
+                    <button type="submit" class="button">Get My Vibe</button>
+                </form>
+            </div>
+
+            <div class="weather-showcase">
+                <h3>Current Weather</h3>
+                <p id="location">Loading location...</p>
+                <div class="temperature" id="temperature">...</div>
+                <p id="weather-description">...</p>
             </div>
         </div>
     </main>
@@ -185,4 +232,53 @@
     <footer class="footer">
         © 2025 VibeRoom. All rights reserved.
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const apiKey = 'YOUR_API_KEY_HERE'; // ⚠️ Replace with your actual API key
+            const locationElement = document.getElementById('location');
+            const temperatureElement = document.getElementById('temperature');
+            const descriptionElement = document.getElementById('weather-description');
+
+            function fetchWeather(lat, lon) {
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Weather data not available.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const city = data.name;
+                        const temp = Math.round(data.main.temp);
+                        const description = data.weather[0].description;
+
+                        locationElement.textContent = `📍 ${city}`;
+                        temperatureElement.innerHTML = `${temp}°C`;
+                        descriptionElement.textContent = description;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching weather data:', error);
+                        locationElement.textContent = 'Weather not found.';
+                        temperatureElement.textContent = '...';
+                        descriptionElement.textContent = '...';
+                    });
+            }
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetchWeather(lat, lon);
+                }, () => {
+                    locationElement.textContent = 'Location access denied.';
+                });
+            } else {
+                locationElement.textContent = 'Geolocation not supported.';
+            }
+        });
+    </script>
 </body>
+</html>

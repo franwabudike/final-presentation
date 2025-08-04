@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeRoom - All Playlists</title>
-    <style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VibeRoom - All Playlists</title>
+  <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
@@ -206,43 +206,45 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
-        <nav class="nav-links">
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('about') }}">About</a>
-            <a href="{{ url_for('playlists') }}" class="active">Playlists</a>
-            <a href="{{ url_for('contact') }}">Contact</a>
-        </nav>
-        <a href="{{ url_for('index') }}" class="get-started">Get Started</a>
-    </header>
+  <header class="header">
+    <div class="logo"><a href="{{ url_for('index') }}">🎵 VibeRoom</a></div>
+    <nav class="nav-links">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('playlists') }}" class="active">Playlists</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
+    </nav>
+    {% if current_user %}
+      <a href="{{ url_for('logout') }}" class="get-started">Log Out</a>
+    {% else %}
+      <a href="{{ url_for('auth') }}" class="get-started">Get Started</a>
+    {% endif %}
+  </header>
 
-    <main class="playlists-content">
-        <h1>All Playlists</h1>
-        <p>Browse our complete collection of study-optimized playlists</p>
+  <main class="playlists-content">
+    <h1>All Playlists</h1>
+    <p>Browse our complete collection of study-optimized playlists</p>
 
-        <div class="filters">
-            <div class="filter-group">
-                <label for="mood-filter">Filter by Mood:</label>
-                <select id="mood-filter">
-                    <option>All Moods</option>
-                    <option>Focus</option>
-                    <option>Chill</option>
-                    <option>Energized</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="platform-filter">Filter by Platform:</label>
-                <select id="platform-filter">
-                    <option>All Platforms</option>
-                    <option>YouTube Music</option>
-                    <option>Spotify</option>
-                </select>
-            </div>
-        </div>
+    <div class="filters">
+      <div class="filter-group">
+        <label for="mood-filter">Filter by Mood:</label>
+        <select id="mood-filter">
+          <option value="all">All Moods</option>
+          <option value="focus">Focus</option>
+          <option value="chill">Chill</option>
+          <option value="energized">Energized</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="platform-filter">Filter by Platform:</label>
+        <select id="platform-filter">
+          <option value="all">All Platforms</option>
+          <option value="youtube">YouTube Music</option>
+          <option value="spotify">Spotify</option>
+        </select>
+      </div>
+    </div>
 
-        <div class="playlist-grid">
-    <!-- YouTube-only Playlist Cards -->
     <div class="playlist-card">
         <h3>Chill Vibes</h3>
         <div class="meta">
@@ -307,6 +309,7 @@
         </div>
         <a href="#" class="listen-now">Listen Now</a>
     </div>
+
     <div class="playlist-card">
         <h3>Lofi Focus Beats</h3>
         <div class="meta">
@@ -341,38 +344,54 @@
     </div>
 </div>
 
-        <div class="contribute-section">
-            <h2>Contribute a Playlist</h2>
-            <p>Know a great study playlist? Share it with the community!</p>
-            <form class="contribute-form">
-                <div class="form-group">
-                    <label for="contribute-mood">Mood:</label>
-                    <select id="contribute-mood">
-                        <option>Select Mood</option>
-                        <option>Focus</option>
-                        <option>Chill</option>
-                        <option>Energized</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="contribute-platform">Platform:</label>
-                    <select id="contribute-platform">
-                        <option>Select Platform</option>
-                        <option>YouTube Music</option>
-                        <option>Spotify</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="playlist-title">Playlist Title:</label>
-                    <input type="text" id="playlist-title" placeholder="e.g., Ultimate Focus Playlist">
-                </div>
-                <div class="form-group">
-                    <label for="playlist-url">Playlist URL:</label>
-                    <input type="url" id="playlist-url" placeholder="Paste the link here">
-                </div>
-                <button type="submit" class="add-playlist-btn">Add Playlist</button>
-            </form>
+    <div class="contribute-section">
+      <h2>Contribute a Playlist</h2>
+      <p>Know a great study playlist? Share it with the community!</p>
+      <form class="contribute-form">
+        <div class="form-group">
+          <label for="contribute-mood">Mood:</label>
+          <select id="contribute-mood">
+            <option>Select Mood</option>
+            <option>Focus</option>
+            <option>Chill</option>
+            <option>Energized</option>
+          </select>
         </div>
-    </main>
+        <div class="form-group">
+          <label for="contribute-platform">Platform:</label>
+          <select id="contribute-platform">
+            <option>Select Platform</option>
+            <option>YouTube Music</option>
+            <option>Spotify</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="playlist-title">Playlist Title:</label>
+          <input type="text" id="playlist-title" placeholder="e.g., Ultimate Focus Playlist" />
+        </div>
+        <div class="form-group">
+          <label for="playlist-url">Playlist URL:</label>
+          <input type="url" id="playlist-url" placeholder="Paste the link here" />
+        </div>
+        <button type="submit" class="add-playlist-btn">Add Playlist</button>
+      </form>
+    </div>
+  </main>
 
-    <footer class="footer">
+  <footer class="footer">
+    &copy; 2025 VibeRoom. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById("mood-filter").addEventListener("change", redirectToPlaylists);
+    document.getElementById("platform-filter").addEventListener("change", redirectToPlaylists);
+
+    function redirectToPlaylists() {
+      const mood = document.getElementById("mood-filter").value;
+      const platform = document.getElementById("platform-filter").value;
+      const url = `/playlists?mood=${mood}&platform=${platform}`;
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>
