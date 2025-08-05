@@ -103,7 +103,20 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
+
+        # Check if username already exists
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different one.', 'error')
+            return render_template('auth.html', title='Register', form=form)
+        
+        # Check if email already exists
+        existing_email = User.query.filter_by(email=form.email.data).first()
+        if existing_email:
+            flash('Email already registered. Please use a different email.', 'error')
+            return render_template('auth.html', title='Register', form=form)
+
         # Handle profile picture upload
         picture_file = request.files['picture']
         if picture_file and picture_file.filename != '':
@@ -122,11 +135,17 @@ def register():
             password=hashed_password,
             picture=filename
         )
-        db.session.add(user)
-        db.session.commit()
-        flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home'))
-    
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash(f'Account created for {form.username.data}!', 'success')
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occured while creating your account. Please try again.', 'error')
+            return redirect(url_for('register')) #render_template('auth.htm', title='Register', form=form)
+    # in case form fails or GET request
     return render_template('auth.html', title='Register', form=form)
 
 @app.route('/logout')

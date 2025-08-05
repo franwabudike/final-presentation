@@ -11,6 +11,20 @@
         {% include 'navbar.html' %}
         <main class="main-content">
             <div class="auth-container">
+
+
+                <!-- Display flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+
                 <div id="login-form">
                     <h1>Login</h1>
                     <p>Please log in to access your playlists.</p>
