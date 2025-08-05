@@ -1,13 +1,46 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, url_for, flash, redirect, request, jsonify
+from reg_form import RegistrationForm
+from flask_behind_proxy import FlaskBehindProxy
+from flask_sqlalchemy import SQLAlchemy
+from db_model import User, db
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+import os
 import requests
+
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
+app.config['SECRET_KEY'] = 'your_secret_key_here'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///VibeRoom.db' #creating database
+app.config['UPLOAD_FOLDER'] = 'static/profile_pics' #photo for profile photo uploads to go
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit for images
 
+# Create folder for uploads if it doesn't exist
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Initialize extensions
+db.init_app(app)
+# Create tables
+with app.app_context():
+    db.create_all()
+#create login manager
+login_manager = LoginManager()
+login_manager.login_view = '/login' #redirects to this page when trying to enter a login required page
+login_manager.init_app(app)
+
+#load user
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+"""
 # Mock user database
 users = {
     'testuser': 'password123'
 }
+"""
 
 # Example playlist data
 playlists_data = [
@@ -15,11 +48,12 @@ playlists_data = [
     {"title": "Workout Music", "mood": "energized", "platform": "youtube", "url": "#"},
     {"title": "Lofi Focus Beats", "mood": "focus", "platform": "youtube", "url": "#"},
 ]
-
+"""
 # Inject user into all templates
 @app.context_processor
 def inject_user():
     return dict(user=session.get('user'))
+"""
 
 @app.route('/')
 def home():
@@ -45,43 +79,65 @@ def contact():
 
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
+    form = RegistrationForm()  # Create the form instance
     error = None
-    return render_template('auth.html', error=error)
+    return render_template('auth.html', error=error, form=form)
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first() #find user using username
 
-    if username in users and users[username] == password:
-        session['user'] = username
-        flash(f'Welcome back, {username}!')
-        return redirect(url_for('home'))
-    else:
-        flash('❌ Invalid login credentials')
-        return redirect(url_for('auth'))
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid Creditials')
+            return redirect(url_for('auth'))  # Redirect back to auth page    
+    return render_template('login.html')
 
-@app.route('/register', methods=['POST'])
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # Handle profile picture upload
+        picture_file = request.files['picture']
+        if picture_file and picture_file.filename != '':
+            filename = secure_filename(picture_file.filename)
+            picture_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            picture_file.save(picture_path)
+        else:
+            filename = "default_pfp.jpeg"
 
-    if username in users:
-        flash('❌ Username already exists. Try a different one.')
-        return redirect(url_for('auth'))
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
 
-    users[username] = password
-    session['user'] = username
-    flash('✅ Registration successful. Welcome!')
-    return redirect(url_for('home'))
+        # Create new user
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password=hashed_password,
+            picture=filename
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash(f'Account created for {form.username.data}!', 'success')
+        return redirect(url_for('home'))
+    
+    return render_template('auth.html', title='Register', form=form)
 
 @app.route('/logout')
+@login_required
 def logout():
-    session.pop('user', None)
+    logout_user()
     flash('👋 You’ve been logged out.')
     return redirect(url_for('home'))
 
 @app.route('/playlists')
+@login_required
 def playlists():
     mood = request.args.get('mood', 'all')
     platform = request.args.get('platform', 'all')

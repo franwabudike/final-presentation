@@ -24,10 +24,26 @@
                 <div id="register-form" style="display: none;">
                     <h1>Register</h1>
                     <p>Create a new account to get started.</p>
-                    <form class="auth-form" method="POST" action="{{ url_for('register') }}">
-                        <input type="text" name="username" placeholder="Username" required>
-                        <input type="password" name="password" placeholder="Password" required>
-                        <button type="submit">Register</button>
+
+                        <!-- Display form errors -->
+                        {% if form.errors %}
+                        <div class="errors">
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <p class="error">{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <form class="auth-form" method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        {{ form.username.label }} {{ form.username() }}<br>
+                        {{ form.email.label }} {{ form.email() }}<br>
+                        {{ form.password.label }} {{ form.password() }}<br>
+                        {{form.confirm_password.label}} {{form.confirm_password() }} <br>
+                        {{ form.picture.label }} {{ form.picture() }}<br>
+                        {{ form.submit() }} 
                     </form>
                     <p>Already have an account? <a href="#" class="toggle-form" onclick="toggleForms()">Login here.</a></p>
                 </div>
