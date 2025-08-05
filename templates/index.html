@@ -1,102 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>VibeRoom - Find Your Study Vibe</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VibeRoom - Find Your Study Vibe</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .user-greeting {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+
+    .user-greeting img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+  </style>
 </head>
 <body>
-    <div class="content-wrapper">
-        {% include 'navbar.html' %}
+  <div class="content-wrapper">
+    {% include 'navbar.html' %}
 
-        <main class="hero main-content">
-            <h1>Find Your Study <span>Vibe</span></h1>
-            <p>Mood-based music playlists designed for students to enhance focus, productivity, and relaxation</p>
+    <main class="hero main-content">
+      <!-- Flash message shown here -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-messages">
+            {% for message in messages %}
+              <div class="flash">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
 
-            <div class="platforms">
-                <a href="#" class="platform-button">YouTube Music</a>
-            </div>
+      {% if user %}
+      <div class="user-greeting">
+        {% if session.profile_pic %}
+          <img src="{{ url_for('static', filename='profile_pics/' ~ session.profile_pic) }}" alt="Profile Pic">
+        {% endif %}
+      </div>
+      {% endif %}
 
-            <div class="hero-content-container">
-                <div class="form-container">
-                    <h3>How are you feeling today?</h3>
-                    <form method="GET" action="{{ url_for('playlists') }}">
-                        <select name="mood" class="dropdown" required>
-                            <option value="focus">Focused</option>
-                            <option value="chill">Chill</option>
-                            <option value="energized">Energized</option>
-                        </select>
-                        <button type="submit" class="button">Get My Vibe</button>
-                    </form>
-                </div>
+      <h1>Find Your Study <span>Vibe</span></h1>
+      <p>Mood-based music playlists designed for students to enhance focus, productivity, and relaxation</p>
 
-                <div class="weather-showcase" id="weather-box">
-                    <h3>Getting your weather...</h3>
-                    <p id="location">Please allow location access</p>
-                    <div class="temperature" id="temperature">...</div>
-                    <p id="description">...</p>
-                    <p id="suggested-mood"><strong>Suggested vibe:</strong> ...</p>
-                    <form id="weather-vibe-form" method="GET" action="{{ url_for('playlists') }}" style="display: none;">
-                        <input type="hidden" name="mood" id="weather-mood-input">
-                        <button type="submit" class="button">Try Weather Vibe</button>
-                    </form>
-                </div>
-            </div>
-        </main>
+      <div class="platforms">
+        <a href="{{ url_for('rooms_page') }}" class="platform-button">Join a Room</a>
+      </div>
 
-        {% include 'footer.html' %}
-    </div>
+      <div class="hero-content-container">
+        <div class="form-container">
+          <h3>How are you feeling today?</h3>
+          <form method="GET" action="{{ url_for('playlists') }}">
+            <select name="mood" class="dropdown" required>
+              <option value="focus">Focused</option>
+              <option value="chill">Chill</option>
+              <option value="energized">Energized</option>
+            </select>
+            <button type="submit" class="button">Get My Vibe</button>
+          </form>
+        </div>
 
-    <script>
-        // Geolocation + Weather Fetch
-        window.addEventListener('DOMContentLoaded', () => {
-            if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
+        <div class="weather-showcase" id="weather-box">
+          <h3>Getting your weather...</h3>
+          <p id="location">Please allow location access</p>
+          <div class="temperature" id="temperature">...</div>
+          <p id="description">...</p>
+          <p id="suggested-mood"><strong>Suggested vibe:</strong> ...</p>
+          <form id="weather-vibe-form" method="GET" action="{{ url_for('playlists') }}" style="display: none;">
+            <input type="hidden" name="mood" id="weather-mood-input">
+            <button type="submit" class="button">Try Weather Vibe</button>
+          </form>
+        </div>
+      </div>
+    </main>
 
-                        fetch('/weather', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ lat: latitude, lon: longitude })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.error) {
-                                showWeatherError("Weather unavailable");
-                            } else {
-                                document.getElementById('weather-box').querySelector('h3').innerText = `Weather in ${data.location}`;
-                                document.getElementById('location').innerText = data.location;
-                                document.getElementById('temperature').innerText = `${data.temperature}°C`;
-                                document.getElementById('description').innerText = data.description;
-                                document.getElementById('suggested-mood').innerHTML = `<strong>Suggested vibe:</strong> ${data.suggested_mood}`;
-                                document.getElementById('weather-mood-input').value = data.suggested_mood;
-                                document.getElementById('weather-vibe-form').style.display = 'block';
-                            }
-                        })
-                        .catch(() => showWeatherError("Error fetching weather"));
-                    },
-                    () => showWeatherError("Location denied")
-                );
-            } else {
-                showWeatherError("Geolocation not supported");
-            }
+    {% include 'footer.html' %}
+  </div>
 
-            function showWeatherError(message) {
-                const box = document.getElementById('weather-box');
-                box.querySelector('h3').innerText = message;
-                box.querySelector('#location').innerText = '';
-                document.getElementById('temperature').innerText = '';
-                document.getElementById('description').innerText = '';
-                document.getElementById('suggested-mood').innerText = '';
-                document.getElementById('weather-vibe-form').style.display = 'none';
-            }
-        });
-    </script>
+  <script>
+    // Geolocation + Weather Fetch
+    window.addEventListener('DOMContentLoaded', () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
 
-    <script src="{{ url_for('static', filename='header-footer.js') }}"></script>
+            fetch('/weather', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ lat: latitude, lon: longitude })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.error) {
+                showWeatherError("Weather unavailable");
+              } else {
+                document.getElementById('weather-box').querySelector('h3').innerText = `Weather in ${data.location}`;
+                document.getElementById('location').innerText = data.location;
+                document.getElementById('temperature').innerText = `${data.temperature}°C`;
+                document.getElementById('description').innerText = data.description;
+                document.getElementById('suggested-mood').innerHTML = `<strong>Suggested vibe:</strong> ${data.suggested_mood}`;
+                document.getElementById('weather-mood-input').value = data.suggested_mood;
+                document.getElementById('weather-vibe-form').style.display = 'block';
+              }
+            })
+            .catch(() => showWeatherError("Error fetching weather"));
+          },
+          () => showWeatherError("Location denied")
+        );
+      } else {
+        showWeatherError("Geolocation not supported");
+      }
+
+      function showWeatherError(message) {
+        const box = document.getElementById('weather-box');
+        box.querySelector('h3').innerText = message;
+        box.querySelector('#location').innerText = '';
+        document.getElementById('temperature').innerText = '';
+        document.getElementById('description').innerText = '';
+        document.getElementById('suggested-mood').innerText = '';
+        document.getElementById('weather-vibe-form').style.display = 'none';
+      }
+    });
+  </script>
+
+  <script src="{{ url_for('static', filename='header-footer.js') }}"></script>
 </body>
 </html>

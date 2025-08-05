@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeRoom - Group Rooms</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="content-wrapper">
+        {% include 'navbar.html' %}
+
+        <main class="playlists-content">
+            <h1>Study Together in Real-Time</h1>
+            <p>Join a synchronized group room or create your own to vibe together ✨</p>
+
+            <form method="POST" action="{{ url_for('create_room') }}" class="contribute-form" style="margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label for="room_name">Create a New Room</label>
+                    <input type="text" name="room_name" id="room_name" required placeholder="Enter room name...">
+                </div>
+                <button type="submit" class="add-playlist-btn">Create Room</button>
+            </form>
+
+            {% if rooms %}
+                <div class="playlist-grid">
+                    {% for id, room in rooms.items() %}
+                    <div class="playlist-card">
+                        <h3>{{ room.name }}</h3>
+                        <div class="meta">
+                            <span class="mood">👥 {{ room.users | length }} users</span>
+                        </div>
+                        <a href="{{ url_for('room_page', room_id=id) }}" class="listen-now">Join Room</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align:center; margin-top: 2rem;">No active rooms yet. Be the first to create one! 🚀</p>
+            {% endif %}
+        </main>
+
+        {% include 'footer.html' %}
+    </div>
+    <script src="{{ url_for('static', filename='header-footer.js') }}"></script>
+</body>
+</html>

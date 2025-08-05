@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VibeRoom - Group Room</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" crossorigin="anonymous"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+<div class="content-wrapper">
+    {% include 'navbar.html' %}
+
+    <main class="playlists-content">
+        <h1>🎧 Room: {{ room.name }}</h1>
+        <p style="text-align: center;">Room ID: <code>{{ room_id }}</code></p>
+
+        <div class="playlist-grid">
+            <!-- Video + Share Form -->
+            <div class="playlist-card full-width">
+                <div class="video-wrapper" style="text-align:center;">
+                    <div id="player"></div>
+                </div>
+                <form id="video-form" style="margin-top: 1rem; display: flex; gap: 10px;">
+                    <input type="text" id="video-url" placeholder="Enter YouTube video URL" style="flex: 1; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc;" required>
+                    <button type="submit" class="button">Share</button>
+                </form>
+            </div>
+
+            <!-- Playlist Queue -->
+            <div class="playlist-card">
+                <h3>📝 Playlist Queue</h3>
+                <ul id="queue-list" class="basic-list"></ul>
+            </div>
+
+            <!-- Chat Box -->
+            <div class="playlist-card">
+                <h3>💬 Room Chat</h3>
+                <div id="chat-messages" style="height: 200px; overflow-y: auto; background: #f9f9f9; padding: 0.5rem; border-radius: 8px; margin-bottom: 0.5rem;"></div>
+                <form id="chat-form" style="display: flex; gap: 8px;">
+                    <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc;" required>
+                    <button type="submit" class="button">Send</button>
+                </form>
+            </div>
+
+            <!-- User List -->
+            <div class="playlist-card">
+                <h3>👥 Users in Room</h3>
+                <ul id="user-list" class="basic-list">
+                    {% for u in room.users %}
+                        <li>{{ u }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
+</div>
+
+<script>
+    const roomId = "{{ room_id }}";
+    const socket = io();
+    let player;
+
+    socket.emit('join', { room: roomId });
+
+    socket.on('user_joined', data => {
+        const ul = document.getElementById("user-list");
+        const li = document.createElement("li");
+        li.textContent = data.user;
+        ul.appendChild(li);
+    });
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            height: '360',
+            width: '100%',
+            videoId: '5qap5aO4i9A',
+            events: {
+                onStateChange: onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        const time = player.getCurrentTime();
+        if (event.data === YT.PlayerState.PLAYING) {
+            socket.emit('video_event', { room: roomId, action: 'play', time });
+        } else if (event.data === YT.PlayerState.PAUSED) {
+            socket.emit('video_event', { room: roomId, action: 'pause', time });
+        }
+    }
+
+    socket.on('video_event', data => {
+        if (!player) return;
+        player.seekTo(data.time, true);
+        if (data.action === 'play') player.playVideo();
+        else if (data.action === 'pause') player.pauseVideo();
+    });
+
+    document.getElementById('video-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const url = document.getElementById('video-url').value;
+        const videoId = extractYouTubeID(url);
+        if (videoId) {
+            socket.emit('new_video', { room: roomId, videoId });
+            document.getElementById('video-url').value = '';
+        }
+    });
+
+    socket.on('new_video', data => {
+        if (!player) return;
+        player.loadVideoById(data.videoId);
+        addToQueue(data.videoId);
+    });
+
+    function addToQueue(videoId) {
+        const ul = document.getElementById("queue-list");
+        const li = document.createElement("li");
+        li.textContent = `https://youtu.be/${videoId}`;
+        ul.appendChild(li);
+    }
+
+    function extractYouTubeID(url) {
+        const regex = /(?:v=|\/)([0-9A-Za-z_-]{11}).*/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    }
+
+    document.getElementById("chat-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const input = document.getElementById("chat-input");
+        const message = input.value;
+        socket.emit('chat_message', { room: roomId, message });
+        input.value = '';
+    });
+
+    socket.on('chat_message', data => {
+        const chat = document.getElementById("chat-messages");
+        const p = document.createElement("p");
+        p.textContent = data.message;
+        chat.appendChild(p);
+        chat.scrollTop = chat.scrollHeight;
+    });
+</script>
+</body>
+</html>
