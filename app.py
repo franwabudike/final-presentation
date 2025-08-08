@@ -109,13 +109,13 @@ def register():
         existing_user = User.query.filter_by(username=form.username.data).first()
         if existing_user:
             flash('Username already exists. Please choose a different one.', 'error')
-            return render_template('auth.html', title='Register', form=form)
+            return redirect(url_for('register'))
         
         # Check if email already exists
         existing_email = User.query.filter_by(email=form.email.data).first()
         if existing_email:
             flash('Email already registered. Please use a different email.', 'error')
-            return render_template('auth.html', title='Register', form=form)
+            return redirect(url_for('register'))
 
         # Handle profile picture upload
         picture_file = request.files['picture']
