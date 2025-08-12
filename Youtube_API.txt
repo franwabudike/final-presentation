@@ -1,0 +1,76 @@
+import os
+import requests
+
+
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")        #flie on the personal key
+WEATHER_API_KEY = os.getenv("WEATHERSTACK_API_KEY")   #flie on the personal key
+
+# mood vibes
+mood_links = {
+    "happy": "PLgzTt0k8mXzF2fleyxQ17JxeccHFC8Gxp",
+    "sad": "PL3-sRm8xAzY-w9GS19pLXMyFRTuJcuUjy",
+    "stressed": "_BtXPQimVhg",
+    "studying": "lTRiuFIWV54",
+    "lana mood": "RDF_pWdsfIXjk",
+    "ariana mood": "PLuw53-DFstpSo_LrYWD1w9rKXPYZy5qc7"
+}
+
+# weather aspect
+weather_to_mood = {
+    "sunny": "happy",
+    "rain": "sad",
+    "overcast": "lana mood",
+    "cloudy": "studying",
+    "mist": "stressed",
+    "snow": "ariana mood"
+}
+
+def get_weather(city):
+    url = f"http://api.weatherstack.com/current?access_key={WEATHER_API_KEY}&query={city}"
+    r = requests.get(url)
+    data = r.json()
+
+    if "current" in data and "weather_descriptions" in data["current"]:
+        return data["current"]["weather_descriptions"][0].lower()
+    return None  # sigh
+
+def get_link_by_mood(mood):
+    mood = mood.lower().strip()
+    link_id = mood_links.get(mood)
+
+    if not link_id:
+        return "noooooo, mood not found. try another one?"
+
+    if link_id.startswith("PL") or link_id.startswith("RD"):
+        return f"https://www.youtube.com/playlist?list={link_id}"
+    return f"https://www.youtube.com/watch?v={link_id}"
+
+if __name__ == "__main__":
+    print("Mood Music Room ")
+    print("Type 'mood' to pick a vibe or 'weather' to let the sky pick your studying vibes ")
+
+    mode = input("mood or weather? ").strip().lower()
+
+    if mode == "weather":
+        city = input("city? > ")
+        w = get_weather(city)
+
+        if w:
+            print("weather rn in", city, ":", w)
+            mood = weather_to_mood.get(w, "happy")
+            print("feels like... mood =", mood)
+            print("your vibe link →")
+            print(get_link_by_mood(mood))
+        else:
+            print("ugh couldn't get weather lol")
+
+    elif mode == "mood":
+        print("ok choose from ↓↓↓")
+        for m in mood_links.keys():
+            print(" ~", m)
+        user_mood = input("what are you feeling rn? > ")
+        print("here u go")
+        print(get_link_by_mood(user_mood))
+
+    else:
+        print("uhhh that’s not a choice. try again")
