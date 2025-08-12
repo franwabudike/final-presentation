@@ -7,10 +7,10 @@ WEATHER_API_KEY = os.getenv("WEATHERSTACK_API_KEY")   #flie on the personal key
 
 
 mood_links = {
-    "happy": "https://www.youtube.com/playlist?list=PLgzTt0k8mXzF2fleyxQ17JxeccHFC8Gxp",
-    "sad": "https://www.youtube.com/playlist?list=PL3-sRm8xAzY-w9GS19pLXMyFRTuJcuUjy",
+    "happy": "https://www.youtube.com/watch?v=ljnGl5nvUJY&list=RDljnGl5nvUJY&start_radio=1",
+    "sad": "https://www.youtube.com/watch?v=Jy-dLvnJaw8",
     "stressed": "https://www.youtube.com/watch?v=_BtXPQimVhg",
-    "studying": "https://www.youtube.com/watch?v=lTRiuFIWV54",
+    "studying": "https://www.youtube.com/watch?v=9kzE8isXlQY&list=RD9kzE8isXlQY&start_radio=1",
     "lana mood": "https://www.youtube.com/playlist?list=RDF_pWdsfIXjk",
     "ariana mood": "https://www.youtube.com/playlist?list=PLuw53-DFstpSo_LrYWD1w9rKXPYZy5qc7"
 }
@@ -72,3 +72,4 @@ if __name__ == "__main__":
 
     else:
         print("That’s not a choice. Please try again")
+
