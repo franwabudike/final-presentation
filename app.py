@@ -7,17 +7,26 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 socketio = SocketIO(app)
 
-# -------------------------------
-# In-Memory User + Playlist + Room Storage (for demo purposes)
-# -------------------------------
+# USERS
 users = {'testuser': 'password123'}
+
+# PLAYLISTS DATA (with new moods, IDs, and YouTube URLs)
 playlists_data = [
-    {"title": "Chill Vibes", "mood": "chill", "platform": "youtube", "url": "#"},
-    {"title": "Workout Music", "mood": "energized", "platform": "youtube", "url": "#"},
-    {"title": "Lofi Focus Beats", "mood": "focus", "platform": "youtube", "url": "#"},
+    {"id": "1", "title": "Chill Vibes", "mood": "chill", "platform": "youtube", "url": "https://www.youtube.com/embed/5qap5aO4i9A"},
+    {"id": "2", "title": "Workout Music", "mood": "energized", "platform": "youtube", "url": "https://www.youtube.com/embed/XI_gjW3r5dA"},
+    {"id": "3", "title": "Lofi Focus Beats", "mood": "focus", "platform": "youtube", "url": "https://www.youtube.com/embed/jfKfPfyJRdk"},
+    {"id": "4", "title": "Upbeat Hits", "mood": "upbeat", "platform": "youtube", "url": "https://www.youtube.com/embed/2Vv-BfVoq4g"},
+    {"id": "5", "title": "Lo-Fi Dreams", "mood": "lofi", "platform": "youtube", "url": "https://www.youtube.com/embed/hHW1oY26kxQ"},
+    {"id": "6", "title": "Stress Relief", "mood": "stressed", "platform": "youtube", "url": "https://www.youtube.com/embed/1ZYbU82GVz4"},
+    {"id": "7", "title": "Nature Sounds", "mood": "nature", "platform": "youtube", "url": "https://www.youtube.com/embed/odrJZ9QccuQ"},
+    {"id": "8", "title": "Smooth Jazz", "mood": "jazz", "platform": "youtube", "url": "https://www.youtube.com/embed/DXSnwq4lmu8"},
+    {"id": "9", "title": "Classical Mornings", "mood": "classical", "platform": "youtube", "url": "https://www.youtube.com/embed/MJpUAWnbhPQ"},
+    {"id": "10", "title": "Ambient Waves", "mood": "ambient", "platform": "youtube", "url": "https://www.youtube.com/embed/2OEL4P1Rz04"}
 ]
+
 rooms = {}  # {room_id: {"name": str, "users": []}}
 
+# WEATHER FUNCTION
 def get_weather_by_coords(lat, lon):
     api_key = "213472c9a0bda2052a29f3cf29d1af3d"
     url = f"http://api.weatherstack.com/current?access_key={api_key}&query={lat},{lon}"
@@ -28,6 +37,7 @@ def get_weather_by_coords(lat, lon):
             condition = weather_data["current"]["weather_descriptions"][0].lower()
             temperature = weather_data["current"]["temperature"]
             city_name = weather_data["location"]["name"]
+
             if "rain" in condition or "storm" in condition:
                 mood = "chill"
             elif "sun" in condition or "clear" in condition:
@@ -36,6 +46,7 @@ def get_weather_by_coords(lat, lon):
                 mood = "focus"
             else:
                 mood = "focus"
+
             return {
                 "location": city_name,
                 "temperature": temperature,
@@ -51,6 +62,7 @@ def get_weather_by_coords(lat, lon):
 def inject_user():
     return dict(user=session.get('user'))
 
+# ROUTES
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -115,6 +127,18 @@ def playlists():
     ]
     return render_template('playlists.html', playlists=filtered, mood=mood, platform=platform)
 
+@app.route('/viberoom/<playlist_id>')
+def viberoom(playlist_id):
+    playlist = next((p for p in playlists_data if p['id'] == playlist_id), None)
+    if not playlist:
+        flash("❌ Playlist not found.")
+        return redirect(url_for('playlists'))
+
+    # Playlist queue (all in same mood)
+    queue = [p for p in playlists_data if p['mood'] == playlist['mood'] and p['id'] != playlist_id]
+
+    return render_template('viberoom.html', playlist=playlist, queue=queue)
+
 @app.route('/weather', methods=['POST'])
 def weather_by_location():
     data = request.get_json()
@@ -125,6 +149,7 @@ def weather_by_location():
         return jsonify(result), 400
     return jsonify(result)
 
+# ROOMS
 @app.route('/rooms')
 def rooms_page():
     return render_template('rooms.html', rooms=rooms)
@@ -148,9 +173,7 @@ def room_page(room_id):
         room["users"].append(username)
     return render_template('room.html', room=room, room_id=room_id)
 
-# -------------------------------
-# SocketIO Events
-# -------------------------------
+# SOCKET.IO EVENTS
 @socketio.on('join')
 def handle_join(data):
     room = data['room']

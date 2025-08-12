@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Personal VibeRoom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+<div class="content-wrapper">
+    {% include 'navbar.html' %}
+
+    <main class="playlists-content">
+        <h1>🎵 {{ playlist.title }}</h1>
+        <p style="text-align: center;">Mood: <strong>{{ playlist.mood | capitalize }}</strong></p>
+
+        <div class="playlist-grid">
+            <!-- Video Player -->
+            <div class="playlist-card full-width">
+                <div class="video-wrapper" style="text-align:center;">
+                    <div id="player"></div>
+                </div>
+                <form id="video-form" style="margin-top: 1rem; display: flex; gap: 10px;">
+                    <input type="text" id="video-url" placeholder="Enter YouTube video URL" style="flex: 1; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc;" required>
+                    <button type="submit" class="button">Add to Queue</button>
+                </form>
+            </div>
+
+            <!-- Queue -->
+            <div class="playlist-card">
+                <h3>📝 Your Queue</h3>
+                <ul id="queue-list" class="basic-list"></ul>
+            </div>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
+</div>
+
+<script>
+    let player;
+    let queue = [];
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            height: '360',
+            width: '100%',
+            videoId: '{{ playlist.video_id }}',
+            events: {
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED && queue.length > 0) {
+            let nextVideo = queue.shift();
+            player.loadVideoById(nextVideo);
+            updateQueueUI();
+        }
+    }
+
+    document.getElementById('video-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const url = document.getElementById('video-url').value;
+        const videoId = extractYouTubeID(url);
+        if (videoId) {
+            queue.push(videoId);
+            updateQueueUI();
+            document.getElementById('video-url').value = '';
+        }
+    });
+
+    function updateQueueUI() {
+        const ul = document.getElementById("queue-list");
+        ul.innerHTML = '';
+        queue.forEach(id => {
+            const li = document.createElement("li");
+            li.textContent = `https://youtu.be/${id}`;
+            ul.appendChild(li);
+        });
+    }
+
+    function extractYouTubeID(url) {
+        const regex = /(?:v=|\/)([0-9A-Za-z_-]{11}).*/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    }
+</script>
+</body>
+</html>
+
+
+
+

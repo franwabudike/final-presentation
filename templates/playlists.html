@@ -1,100 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>VibeRoom - All Playlists</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="content-wrapper">
-        {% include 'navbar.html' %}
+{% extends "base.html" %}
 
-        <main class="playlists-content main-content">
-            <h1>All Playlists</h1>
-            <p>Browse our complete collection of study-optimized playlists</p>
+{% block content %}
+<div class="playlists-content">
+    <h1>Discover Playlists</h1>
+    <p>Browse by mood or platform to find your perfect vibe.</p>
 
-            <div class="filters">
-                <div class="filter-group">
-                    <label for="mood-filter">Filter by Mood:</label>
-                    <select id="mood-filter">
-                        <option value="all" {% if mood == 'all' %}selected{% endif %}>All Moods</option>
-                        <option value="focus" {% if mood == 'focus' %}selected{% endif %}>Focus</option>
-                        <option value="chill" {% if mood == 'chill' %}selected{% endif %}>Chill</option>
-                        <option value="energized" {% if mood == 'energized' %}selected{% endif %}>Energized</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="platform-filter">Filter by Platform:</label>
-                    <select id="platform-filter">
-                        <option value="all" {% if platform == 'all' %}selected{% endif %}>All Platforms</option>
-                        <option value="youtube" {% if platform == 'youtube' %}selected{% endif %}>YouTube Music</option>
-                        <option value="spotify" {% if platform == 'spotify' %}selected{% endif %}>Spotify</option>
-                    </select>
-                </div>
-            </div>
+    <div class="filters">
+        <div class="filter-group">
+            <label for="mood">Filter by Mood</label>
+            <select id="mood" onchange="applyFilters()">
+                <option value="all" {% if mood == 'all' %}selected{% endif %}>All</option>
+                <option value="chill" {% if mood == 'chill' %}selected{% endif %}>Chill</option>
+                <option value="energized" {% if mood == 'energized' %}selected{% endif %}>Energized</option>
+                <option value="focus" {% if mood == 'focus' %}selected{% endif %}>Focus</option>
+                <option value="upbeat" {% if mood == 'upbeat' %}selected{% endif %}>Upbeat</option>
+                <option value="lofi" {% if mood == 'lofi' %}selected{% endif %}>Lo-Fi</option>
+                <option value="stressed" {% if mood == 'stressed' %}selected{% endif %}>Stressed</option>
+                <option value="nature" {% if mood == 'nature' %}selected{% endif %}>Nature</option>
+                <option value="jazz" {% if mood == 'jazz' %}selected{% endif %}>Jazz</option>
+                <option value="classical" {% if mood == 'classical' %}selected{% endif %}>Classical</option>
+                <option value="ambient" {% if mood == 'ambient' %}selected{% endif %}>Ambient</option>
+            </select>
+        </div>
 
-            <div class="playlist-grid">
-                {% for playlist in playlists %}
-                <div class="playlist-card">
-                    <h3>{{ playlist.title }}</h3>
-                    <div class="meta">
-                        <span class="mood">{{ playlist.mood }}</span>
-                        <span>{{ playlist.platform }}</span>
-                    </div>
-                    <a href="{{ playlist.url }}" class="listen-now" target="_blank">Listen Now</a>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="contribute-section">
-                <h2>Contribute a Playlist</h2>
-                <p>Know a great study playlist? Share it with the community!</p>
-                <form class="contribute-form">
-                    <div class="form-group">
-                        <label for="contribute-mood">Mood:</label>
-                        <select id="contribute-mood">
-                            <option>Select Mood</option>
-                            <option>Focus</option>
-                            <option>Chill</option>
-                            <option>Energized</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="contribute-platform">Platform:</label>
-                        <select id="contribute-platform">
-                            <option>Select Platform</option>
-                            <option>YouTube Music</option>
-                            <option>Spotify</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="playlist-title">Playlist Title:</label>
-                        <input type="text" id="playlist-title" placeholder="e.g., Ultimate Focus Playlist" />
-                    </div>
-                    <div class="form-group">
-                        <label for="playlist-url">Playlist URL:</label>
-                        <input type="url" id="playlist-url" placeholder="Paste the link here" />
-                    </div>
-                    <button type="submit" class="add-playlist-btn">Add Playlist</button>
-                </form>
-            </div>
-        </main>
-
-        {% include 'footer.html' %}
+        <div class="filter-group">
+            <label for="platform">Filter by Platform</label>
+            <select id="platform" onchange="applyFilters()">
+                <option value="all" {% if platform == 'all' %}selected{% endif %}>All</option>
+                <option value="youtube" {% if platform == 'youtube' %}selected{% endif %}>YouTube</option>
+                <option value="spotify" {% if platform == 'spotify' %}selected{% endif %}>Spotify</option>
+                <option value="soundcloud" {% if platform == 'soundcloud' %}selected{% endif %}>SoundCloud</option>
+            </select>
+        </div>
     </div>
 
-    <script>
-        document.getElementById("mood-filter").addEventListener("change", redirectToPlaylists);
-        document.getElementById("platform-filter").addEventListener("change", redirectToPlaylists);
+    <div class="playlist-grid">
+        {% for playlist in playlists %}
+        <div class="playlist-card">
+            <h3>{{ playlist.title }}</h3>
+            <div class="meta">
+                <span class="mood">{{ playlist.mood|capitalize }}</span>
+                <span>{{ playlist.platform|capitalize }}</span>
+            </div>
+            <a href="{{ url_for('viberoom', playlist_id=loop.index0) }}" class="listen-now">Listen Now</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
-        function redirectToPlaylists() {
-            const mood = document.getElementById("mood-filter").value;
-            const platform = document.getElementById("platform-filter").value;
-            const url = `/playlists?mood=${mood}&platform=${platform}`;
-            window.location.href = url;
-        }
-    </script>
-</body>
-</html>
+<script>
+function applyFilters() {
+    const mood = document.getElementById('mood').value;
+    const platform = document.getElementById('platform').value;
+    window.location.href = `/playlists?mood=${mood}&platform=${platform}`;
+}
+</script>
+{% endblock %}
+
+
+
+
+
 
