@@ -11,18 +11,18 @@ mood_links = {
     "Lo-FI": "https://www.youtube.com/watch?v=sF80I-TQiW0",
     "stressed": "https://www.youtube.com/watch?v=_BtXPQimVhg",
     "Nature": "https://www.youtube.com/watch?v=9kzE8isXlQY&list=RD9kzE8isXlQY&start_radio=1",
-    "Jazz mood": "https://www.youtube.com/watch?v=cd_YsXGYsbo",
-    "Classical mood": https://www.youtube.com/watch?v=aXxrBKOSba4"
+    "Jazz ": "https://www.youtube.com/watch?v=cd_YsXGYsbo",
+    "Classical ": https://www.youtube.com/watch?v=aXxrBKOSba4"
 }
 
 # use the same links to allow the Youtube API to work better....
 weather_to_mood = {
     "sunny": "Upbeat",
     "rain": "Nature",
-    "overcast": "Jazz mood",
+    "overcast": "Jazz ",
     "cloudy": "Lo-FI",
     "mist": "stressed",
-    "snow": "Classical mood"
+    "snow": "Classical "
 }
 
 # this was given by the weather api website to make code work!
@@ -72,5 +72,6 @@ if __name__ == "__main__":
 
     else:
         print("That’s not a choice. Please try again")
+
 
 
