@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_socketio import SocketIO, join_room, emit
 import requests
+import re
 import uuid
 
 app = Flask(__name__)
@@ -10,28 +11,49 @@ socketio = SocketIO(app)
 # USERS
 users = {'testuser': 'password123'}
 
-# PLAYLISTS DATA (with new moods, IDs, and YouTube URLs)
+# PLAYLISTS DATA (YouTube embed/watch/short URLs are fine)
 playlists_data = [
-    {"id": "1", "title": "Chill Vibes", "mood": "chill", "platform": "youtube", "url": "https://www.youtube.com/embed/5qap5aO4i9A"},
-    {"id": "2", "title": "Workout Music", "mood": "energized", "platform": "youtube", "url": "https://www.youtube.com/embed/XI_gjW3r5dA"},
-    {"id": "3", "title": "Lofi Focus Beats", "mood": "focus", "platform": "youtube", "url": "https://www.youtube.com/embed/jfKfPfyJRdk"},
-    {"id": "4", "title": "Upbeat Hits", "mood": "upbeat", "platform": "youtube", "url": "https://www.youtube.com/embed/2Vv-BfVoq4g"},
-    {"id": "5", "title": "Lo-Fi Dreams", "mood": "lofi", "platform": "youtube", "url": "https://www.youtube.com/embed/hHW1oY26kxQ"},
-    {"id": "6", "title": "Stress Relief", "mood": "stressed", "platform": "youtube", "url": "https://www.youtube.com/embed/1ZYbU82GVz4"},
-    {"id": "7", "title": "Nature Sounds", "mood": "nature", "platform": "youtube", "url": "https://www.youtube.com/embed/odrJZ9QccuQ"},
-    {"id": "8", "title": "Smooth Jazz", "mood": "jazz", "platform": "youtube", "url": "https://www.youtube.com/embed/DXSnwq4lmu8"},
-    {"id": "9", "title": "Classical Mornings", "mood": "classical", "platform": "youtube", "url": "https://www.youtube.com/embed/MJpUAWnbhPQ"},
-    {"id": "10", "title": "Ambient Waves", "mood": "ambient", "platform": "youtube", "url": "https://www.youtube.com/embed/2OEL4P1Rz04"}
+    {"id": "1", "title": "Chill Vibes", "mood": "chill", "platform": "youtube", "url": "https://www.youtube.com/watch?v=5qap5aO4i9A"},
+    {"id": "2", "title": "Workout Music", "mood": "energized", "platform": "youtube", "url": "https://www.youtube.com/watch?v=XI_gjW3r5dA"},
+    {"id": "3", "title": "Lofi Focus Beats", "mood": "focus", "platform": "youtube", "url": "https://www.youtube.com/watch?v=jfKfPfyJRdk"},
+    {"id": "4", "title": "Upbeat Hits", "mood": "upbeat", "platform": "youtube", "url": "https://www.youtube.com/watch?v=2Vv-BfVoq4g"},
+    {"id": "5", "title": "Lo-Fi Dreams", "mood": "lofi", "platform": "youtube", "url": "https://www.youtube.com/watch?v=hHW1oY26kxQ"},
+    {"id": "6", "title": "Stress Relief", "mood": "stressed", "platform": "youtube", "url": "https://www.youtube.com/watch?v=1ZYbU82GVz4"},
+    {"id": "7", "title": "Nature Sounds", "mood": "nature", "platform": "youtube", "url": "https://www.youtube.com/watch?v=odrJZ9QccuQ"},
+    {"id": "8", "title": "Smooth Jazz", "mood": "jazz", "platform": "youtube", "url": "https://www.youtube.com/watch?v=DXSnwq4lmu8"},
+    {"id": "9", "title": "Classical Mornings", "mood": "classical", "platform": "youtube", "url": "https://www.youtube.com/watch?v=MJpUAWnbhPQ"},
+    {"id": "10", "title": "Ambient Waves", "mood": "ambient", "platform": "youtube", "url": "https://www.youtube.com/watch?v=2OEL4P1Rz04"}
 ]
 
 rooms = {}  # {room_id: {"name": str, "users": []}}
+
+# --- Helpers -----------------------------------------------------------------
+YOUTUBE_ID_RE = re.compile(
+    r"""(?ix)
+    (?:v=|\/)([0-9A-Za-z_-]{11})              # watch?v=ID or /ID
+    |youtu\.be\/([0-9A-Za-z_-]{11})           # youtu.be/ID
+    |embed\/([0-9A-Za-z_-]{11})               # /embed/ID
+    """,
+)
+
+def extract_youtube_id(url: str) -> str | None:
+    if not url:
+        return None
+    m = YOUTUBE_ID_RE.search(url)
+    if not m:
+        return None
+    # find the first group that matched
+    for g in m.groups():
+        if g:
+            return g
+    return None
 
 # WEATHER FUNCTION
 def get_weather_by_coords(lat, lon):
     api_key = "213472c9a0bda2052a29f3cf29d1af3d"
     url = f"http://api.weatherstack.com/current?access_key={api_key}&query={lat},{lon}"
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         weather_data = response.json()
         if "current" in weather_data:
             condition = weather_data["current"]["weather_descriptions"][0].lower()
@@ -134,10 +156,20 @@ def viberoom(playlist_id):
         flash("❌ Playlist not found.")
         return redirect(url_for('playlists'))
 
-    # Playlist queue (all in same mood)
-    queue = [p for p in playlists_data if p['mood'] == playlist['mood'] and p['id'] != playlist_id]
+    video_id = extract_youtube_id(playlist.get('url', ''))
+    if not video_id:
+        flash("❌ Could not resolve video for this playlist.")
+        return redirect(url_for('playlists'))
 
-    return render_template('viberoom.html', playlist=playlist, queue=queue)
+    # Suggestions queue: same mood, exclude current
+    queue = []
+    for p in playlists_data:
+        if p['mood'] == playlist['mood'] and p['id'] != playlist_id:
+            vid = extract_youtube_id(p.get('url', ''))
+            if vid:
+                queue.append({"title": p['title'], "id": vid})
+
+    return render_template('viberoom.html', playlist=playlist, video_id=video_id, queue=queue)
 
 @app.route('/weather', methods=['POST'])
 def weather_by_location():
@@ -195,3 +227,6 @@ def handle_chat(data):
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
+
+
+

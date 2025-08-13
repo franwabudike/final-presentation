@@ -13,13 +13,39 @@
         margin-bottom: 20px;
         font-size: 1.1rem;
     }
-
     .user-greeting img {
         width: 40px;
         height: 40px;
         object-fit: cover;
         border-radius: 50%;
         border: 2px solid white;
+    }
+    .hero-content-container {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .form-container, .weather-showcase {
+        flex: 1;
+        min-width: 250px;
+        max-width: 300px;
+    }
+    .weather-showcase {
+        padding: 20px;
+        border-radius: 12px;
+        background: #2a2a51;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .weather-showcase .temperature {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    .weather-detail {
+        margin: 5px 0;
     }
   </style>
 </head>
@@ -28,7 +54,6 @@
     {% include 'navbar.html' %}
 
     <main class="hero main-content">
-      <!-- Flash message shown here -->
       {% with messages = get_flashed_messages() %}
         {% if messages %}
           <div class="flash-messages">
@@ -55,24 +80,34 @@
       </div>
 
       <div class="hero-content-container">
+        <!-- Mood Selector -->
         <div class="form-container">
           <h3>How are you feeling today?</h3>
           <form method="GET" action="{{ url_for('playlists') }}">
             <select name="mood" class="dropdown" required>
+              <option value="all">All moods</option>
               <option value="focus">Focused</option>
               <option value="chill">Chill</option>
               <option value="energized">Energized</option>
+              <option value="upbeat">Upbeat</option>
+              <option value="lofi">Lo-Fi</option>
+              <option value="stressed">Stressed</option>
+              <option value="nature">Nature</option>
+              <option value="jazz">Jazz</option>
+              <option value="classical">Classical</option>
+              <option value="ambient">Ambient</option>
             </select>
             <button type="submit" class="button">Get My Vibe</button>
           </form>
         </div>
 
+        <!-- Weather Box -->
         <div class="weather-showcase" id="weather-box">
           <h3>Getting your weather...</h3>
-          <p id="location">Please allow location access</p>
+          <p id="location" class="weather-detail">Please allow location access</p>
           <div class="temperature" id="temperature">...</div>
-          <p id="description">...</p>
-          <p id="suggested-mood"><strong>Suggested vibe:</strong> ...</p>
+          <p id="description" class="weather-detail">...</p>
+          <p id="suggested-mood" class="weather-detail"><strong>Suggested vibe:</strong> ...</p>
           <form id="weather-vibe-form" method="GET" action="{{ url_for('playlists') }}" style="display: none;">
             <input type="hidden" name="mood" id="weather-mood-input">
             <button type="submit" class="button">Try Weather Vibe</button>
@@ -91,12 +126,9 @@
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-
             fetch('/weather', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ lat: latitude, lon: longitude })
             })
             .then(res => res.json())
@@ -106,7 +138,7 @@
               } else {
                 document.getElementById('weather-box').querySelector('h3').innerText = `Weather in ${data.location}`;
                 document.getElementById('location').innerText = data.location;
-                document.getElementById('temperature').innerText = `${data.temperature}°C`;
+                document.getElementById('temperature').innerText = `${data.temperature}°C / ${(data.temperature * 9/5 + 32).toFixed(1)}°F`;
                 document.getElementById('description').innerText = data.description;
                 document.getElementById('suggested-mood').innerHTML = `<strong>Suggested vibe:</strong> ${data.suggested_mood}`;
                 document.getElementById('weather-mood-input').value = data.suggested_mood;
@@ -136,3 +168,4 @@
   <script src="{{ url_for('static', filename='header-footer.js') }}"></script>
 </body>
 </html>
+

@@ -6,6 +6,109 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" crossorigin="anonymous"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+        }
+        .playlists-content {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            color: #3b3b7a;
+            margin-bottom: 0.5rem;
+        }
+        code {
+            background: #eee;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+        .playlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .playlist-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+        .playlist-card h3 {
+            margin-top: 0;
+            color: #3b3b7a;
+        }
+        .video-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        form {
+            margin-top: 1rem;
+        }
+        #video-form, #chat-form {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        input[type="text"]:focus {
+            border-color: #3b3b7a;
+            outline: none;
+        }
+        .button {
+            background: #3b3b7a;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #2b2b5a;
+        }
+        #chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .basic-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .basic-list li {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        @media (max-width: 600px) {
+            #video-form, #chat-form {
+                flex-direction: column;
+            }
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="content-wrapper">
@@ -13,16 +116,16 @@
 
     <main class="playlists-content">
         <h1>🎧 Room: {{ room.name }}</h1>
-        <p style="text-align: center;">Room ID: <code>{{ room_id }}</code></p>
+        <p>Room ID: <code>{{ room_id }}</code></p>
 
         <div class="playlist-grid">
             <!-- Video + Share Form -->
-            <div class="playlist-card full-width">
-                <div class="video-wrapper" style="text-align:center;">
+            <div class="playlist-card full-width" style="grid-column: 1 / -1; text-align: center;">
+                <div class="video-wrapper">
                     <div id="player"></div>
                 </div>
-                <form id="video-form" style="margin-top: 1rem; display: flex; gap: 10px;">
-                    <input type="text" id="video-url" placeholder="Enter YouTube video URL" style="flex: 1; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc;" required>
+                <form id="video-form">
+                    <input type="text" id="video-url" placeholder="Enter YouTube video URL" required>
                     <button type="submit" class="button">Share</button>
                 </form>
             </div>
@@ -36,9 +139,9 @@
             <!-- Chat Box -->
             <div class="playlist-card">
                 <h3>💬 Room Chat</h3>
-                <div id="chat-messages" style="height: 200px; overflow-y: auto; background: #f9f9f9; padding: 0.5rem; border-radius: 8px; margin-bottom: 0.5rem;"></div>
-                <form id="chat-form" style="display: flex; gap: 8px;">
-                    <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc;" required>
+                <div id="chat-messages"></div>
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Type a message..." required>
                     <button type="submit" class="button">Send</button>
                 </form>
             </div>
@@ -46,11 +149,7 @@
             <!-- User List -->
             <div class="playlist-card">
                 <h3>👥 Users in Room</h3>
-                <ul id="user-list" class="basic-list">
-                    {% for u in room.users %}
-                        <li>{{ u }}</li>
-                    {% endfor %}
-                </ul>
+                <ul id="user-list" class="basic-list"></ul>
             </div>
         </div>
     </main>
@@ -59,27 +158,36 @@
 </div>
 
 <script>
+    // Safely inject initial user list
+    window.INITIAL_USERS = JSON.parse('{{ room.users | tojson | safe }}');
+
     const roomId = "{{ room_id }}";
     const socket = io();
     let player;
 
+    // Populate initial user list without duplicates
+    const userListEl = document.getElementById("user-list");
+    const addUser = (username) => {
+        if (![...userListEl.children].some(li => li.textContent === username)) {
+            const li = document.createElement("li");
+            li.textContent = username;
+            userListEl.appendChild(li);
+        }
+    };
+    window.INITIAL_USERS.forEach(addUser);
+
     socket.emit('join', { room: roomId });
 
     socket.on('user_joined', data => {
-        const ul = document.getElementById("user-list");
-        const li = document.createElement("li");
-        li.textContent = data.user;
-        ul.appendChild(li);
+        addUser(data.user);
     });
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
-            height: '360',
+            height: '270', // smaller
             width: '100%',
             videoId: '5qap5aO4i9A',
-            events: {
-                onStateChange: onPlayerStateChange
-            }
+            events: { onStateChange: onPlayerStateChange }
         });
     }
 
@@ -146,3 +254,4 @@
 </script>
 </body>
 </html>
+
