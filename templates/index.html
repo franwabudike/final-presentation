@@ -1,171 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VibeRoom - Find Your Study Vibe</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <style>
-    .user-greeting {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        font-size: 1.1rem;
-    }
-    .user-greeting img {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 2px solid white;
-    }
-    .hero-content-container {
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        flex-wrap: wrap;
-        margin-top: 20px;
-    }
-    .form-container, .weather-showcase {
-        flex: 1;
-        min-width: 250px;
-        max-width: 300px;
-    }
-    .weather-showcase {
-        padding: 20px;
-        border-radius: 12px;
-        background: #2a2a51;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    .weather-showcase .temperature {
-        font-size: 2rem;
-        font-weight: bold;
-        margin: 10px 0;
-    }
-    .weather-detail {
-        margin: 5px 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Personal VibeRoom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <style>
+        body {
+            background-color: #f8f8f8;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            color: #2a2a51;
+        }
+        .playlists-content {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        h1, h3 { color: #2a2a51; }
+        p { color: #555; }
+        .playlist-card {
+            background-color: #fff;
+            border: 2px solid #ffeb99;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        .video-wrapper {
+            max-width: 640px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .button:hover { background-color: #3e8e41; }
+        .basic-list { list-style: none; padding: 0; margin: 0; }
+        .basic-list li { padding: 0.25rem 0; color: #2a2a51; }
+    </style>
 </head>
 <body>
-  <div class="content-wrapper">
+<div class="content-wrapper">
     {% include 'navbar.html' %}
 
-    <main class="hero main-content">
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <div class="flash-messages">
-            {% for message in messages %}
-              <div class="flash">{{ message }}</div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
-
-      {% if user %}
-      <div class="user-greeting">
-        {% if session.profile_pic %}
-          <img src="{{ url_for('static', filename='profile_pics/' ~ session.profile_pic) }}" alt="Profile Pic">
-        {% endif %}
-      </div>
-      {% endif %}
-
-      <h1>Find Your Study <span>Vibe</span></h1>
-      <p>Mood-based music playlists designed for students to enhance focus, productivity, and relaxation</p>
-
-      <div class="platforms">
-        <a href="{{ url_for('rooms_page') }}" class="platform-button">Join a Room</a>
-      </div>
-
-      <div class="hero-content-container">
-        <!-- Mood Selector -->
-        <div class="form-container">
-          <h3>How are you feeling today?</h3>
-          <form method="GET" action="{{ url_for('playlists') }}">
-            <select name="mood" class="dropdown" required>
-              <option value="all">All moods</option>
-              <option value="focus">Focused</option>
-              <option value="chill">Chill</option>
-              <option value="energized">Energized</option>
-              <option value="upbeat">Upbeat</option>
-              <option value="lofi">Lo-Fi</option>
-              <option value="stressed">Stressed</option>
-              <option value="nature">Nature</option>
-              <option value="jazz">Jazz</option>
-              <option value="classical">Classical</option>
-              <option value="ambient">Ambient</option>
-            </select>
-            <button type="submit" class="button">Get My Vibe</button>
-          </form>
+    <!-- Weather Section -->
+    <main class="playlists-content">
+        <h1>🌤️ Weather Vibe</h1>
+        <div id="weather-box" class="playlist-card">
+            <h3>Fetching your weather...</h3>
+            <p id="location"></p>
+            <p id="temperature"></p>
+            <p id="description"></p>
+            <p id="suggested-mood"></p>
         </div>
 
-        <!-- Weather Box -->
-        <div class="weather-showcase" id="weather-box">
-          <h3>Getting your weather...</h3>
-          <p id="location" class="weather-detail">Please allow location access</p>
-          <div class="temperature" id="temperature">...</div>
-          <p id="description" class="weather-detail">...</p>
-          <p id="suggested-mood" class="weather-detail"><strong>Suggested vibe:</strong> ...</p>
-          <form id="weather-vibe-form" method="GET" action="{{ url_for('playlists') }}" style="display: none;">
-            <input type="hidden" name="mood" id="weather-mood-input">
-            <button type="submit" class="button">Try Weather Vibe</button>
-          </form>
+        <div class="vibe-form-container">
+            <form id="weather-vibe-form" method="GET" action="{{ url_for('playlists') }}" style="display: none;">
+                <input type="hidden" name="mood" id="weather-mood-input">
+                <button type="submit" class="button">Try Weather Vibe</button>
+            </form>
         </div>
-      </div>
+    </main>
+
+    <!-- YouTube Player Section -->
+    <main class="playlists-content">
+        <h1>🎵 {{ playlist.title }}</h1>
+        <p style="text-align: center;">Mood: <strong>{{ playlist.mood | capitalize }}</strong></p>
+
+        <div class="playlist-card">
+            <div class="video-wrapper">
+                <div id="player"></div>
+            </div>
+            <form id="video-form" style="margin-top: 1rem; display: flex; gap: 10px;">
+                <input type="text" id="video-url" placeholder="Enter YouTube video URL" style="flex: 1; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc;" required>
+                <button type="submit" class="button">Add to Queue</button>
+            </form>
+        </div>
+
+        <!-- Queue -->
+        <div class="playlist-card">
+            <h3>📝 Your Queue</h3>
+            <ul id="queue-list" class="basic-list"></ul>
+        </div>
     </main>
 
     {% include 'footer.html' %}
-  </div>
+</div>
 
-  <script>
-    // Geolocation + Weather Fetch
-    window.addEventListener('DOMContentLoaded', () => {
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            fetch('/weather', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ lat: latitude, lon: longitude })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if (data.error) {
-                showWeatherError("Weather unavailable");
-              } else {
-                document.getElementById('weather-box').querySelector('h3').innerText = `Weather in ${data.location}`;
-                document.getElementById('location').innerText = data.location;
-                document.getElementById('temperature').innerText = `${data.temperature}°C / ${(data.temperature * 9/5 + 32).toFixed(1)}°F`;
-                document.getElementById('description').innerText = data.description;
-                document.getElementById('suggested-mood').innerHTML = `<strong>Suggested vibe:</strong> ${data.suggested_mood}`;
-                document.getElementById('weather-mood-input').value = data.suggested_mood;
-                document.getElementById('weather-vibe-form').style.display = 'block';
-              }
-            })
-            .catch(() => showWeatherError("Error fetching weather"));
-          },
-          () => showWeatherError("Location denied")
-        );
-      } else {
-        showWeatherError("Geolocation not supported");
-      }
+<!-- YouTube Player Script -->
+<script>
+    let player;
+    let queue = [];
 
-      function showWeatherError(message) {
-        const box = document.getElementById('weather-box');
-        box.querySelector('h3').innerText = message;
-        box.querySelector('#location').innerText = '';
-        document.getElementById('temperature').innerText = '';
-        document.getElementById('description').innerText = '';
-        document.getElementById('suggested-mood').innerText = '';
-        document.getElementById('weather-vibe-form').style.display = 'none';
-      }
+    function onYouTubeIframeAPIReady() {
+        const initialVideoId = "sjkrrmBnpGE"; // test video
+        player = new YT.Player('player', {
+            height: '360',
+            width: '640',
+            videoId: initialVideoId,
+            playerVars: { 'autoplay': 1, 'mute': 0 },
+            events: { 'onStateChange': onPlayerStateChange }
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED && queue.length > 0) {
+            let nextVideo = queue.shift();
+            player.loadVideoById(nextVideo);
+            updateQueueUI();
+        }
+    }
+
+    document.getElementById('video-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const url = document.getElementById('video-url').value;
+        const videoId = extractYouTubeID(url);
+
+        if (videoId) {
+            if (player.getPlayerState() === -1 || player.getPlayerState() === YT.PlayerState.ENDED) {
+                player.loadVideoById(videoId);
+            } else {
+                queue.push(videoId);
+                updateQueueUI();
+            }
+            document.getElementById('video-url').value = '';
+        }
     });
-  </script>
 
-  <script src="{{ url_for('static', filename='header-footer.js') }}"></script>
+    function updateQueueUI() {
+        const ul = document.getElementById("queue-list");
+        ul.innerHTML = '';
+        queue.forEach(id => {
+            const li = document.createElement("li");
+            li.textContent = `https://youtu.be/${id}`;
+            ul.appendChild(li);
+        });
+    }
+
+    function extractYouTubeID(url) {
+        const regex = /(?:v=|\/)([0-9A-Za-z_-]{11}).*/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    }
+</script>
+
+<!-- Weather Script -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetch('/weather', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: latitude, lon: longitude })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) {
+              showWeatherError("Weather unavailable");
+            } else {
+              document.getElementById('weather-box').querySelector('h3').innerText = `Weather in ${data.location}`;
+              document.getElementById('location').innerText = data.location;
+              document.getElementById('temperature').innerText = `${data.temperature}°C / ${(data.temperature * 9/5 + 32).toFixed(1)}°F`;
+              document.getElementById('description').innerText = data.description;
+              document.getElementById('suggested-mood').innerHTML = `<strong>Suggested vibe:</strong> ${data.suggested_mood}`;
+              document.getElementById('weather-mood-input').value = data.suggested_mood;
+              document.getElementById('weather-vibe-form').style.display = 'block';
+            }
+          })
+          .catch(() => showWeatherError("Error fetching weather"));
+        },
+        () => showWeatherError("Location denied")
+      );
+    } else {
+      showWeatherError("Geolocation not supported");
+    }
+
+    function showWeatherError(message) {
+      const box = document.getElementById('weather-box');
+      box.querySelector('h3').innerText = message;
+      document.getElementById('location').innerText = '';
+      document.getElementById('temperature').innerText = '';
+      document.getElementById('description').innerText = '';
+      document.getElementById('suggested-mood').innerText = '';
+      document.getElementById('weather-vibe-form').style.display = 'none';
+    }
+  });
+</script>
 </body>
 </html>
 

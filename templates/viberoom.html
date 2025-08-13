@@ -7,77 +7,112 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
-        body {
-            background-color: #f8f8f8; /* White-ish background */
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            color: #2a2a51;
-        }
+    body {
+        background-color: #f8f8f8;
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        color: #2a2a51;
+    }
 
-        .playlists-content {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            text-align: center;
-        }
+    .playlists-content {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        text-align: center;
+    }
 
-        h1, h3 {
-            color: #2a2a51; /* Purple headings */
-        }
+    h1, h3 {
+        color: #2a2a51;
+        margin-bottom: 1rem;
+    }
 
-        p {
-            color: #555; /* Softer text */
-        }
+    p {
+        color: #555;
+        margin: 0.3rem 0;
+    }
 
-        .playlist-card {
-            background-color: #fff;
-            border: 2px solid #ffeb99; /* Yellow border */
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
+    .playlist-card {
+        background-color: #fff;
+        border: 2px solid #ffeb99;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
 
-        .video-wrapper {
-            max-width: 640px;
-            margin: 0 auto;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+    .video-wrapper {
+        max-width: 640px;
+        margin: 0 auto;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 
-        .button {
-            background-color: #4CAF50; /* Green */
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
+    .button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
 
-        .button:hover {
-            background-color: #3e8e41;
-        }
+    .button:hover {
+        background-color: #3e8e41;
+    }
 
-        .basic-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+    .basic-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+        display: inline-block;
+    }
 
-        .basic-list li {
-            padding: 0.25rem 0;
-            color: #2a2a51;
-        }
-    </style>
+    .basic-list li {
+        padding: 0.4rem 0;
+        color: #2a2a51;
+        font-size: 0.95rem;
+    }
+
+    /* Center and space out form inputs */
+    #video-form {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    #video-url {
+        flex: 1 1 300px;
+        padding: 0.6rem;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+</style>
 </head>
 <body>
 <div class="content-wrapper">
     {% include 'navbar.html' %}
+
+    {% set mood_emojis = {
+        'focus': '🎯 Focused',
+        'chill': '🎵 Chill Vibes',
+        'energized': '⚡ Energized',
+        'upbeat': '😊 Upbeat',
+        'lofi': '🎶 Lo-Fi',
+        'stressed': '😰 Stressed',
+        'nature': '🌿 Nature',
+        'jazz': '🎷 Jazz',
+        'classical': '🎻 Classical',
+        'ambient': '🌌 Ambient'
+    } %}
 
     <!-- Weather Section -->
     <main class="playlists-content">
@@ -89,7 +124,6 @@
             <p id="description"></p>
             <p id="suggested-mood"></p>
         </div>
-
         <div class="vibe-form-container">
             <form id="weather-vibe-form" method="GET" action="{{ url_for('playlists') }}" style="display: none;">
                 <input type="hidden" name="mood" id="weather-mood-input">
@@ -101,7 +135,9 @@
     <!-- YouTube Player Section -->
     <main class="playlists-content">
         <h1>🎵 {{ playlist.title }}</h1>
-        <p style="text-align: center;">Mood: <strong>{{ playlist.mood | capitalize }}</strong></p>
+        <p style="text-align: center;">
+            Mood: <strong>{{ mood_emojis.get(playlist.mood, playlist.mood | capitalize) }}</strong>
+        </p>
 
         <div class="playlist-card">
             <div class="video-wrapper">
@@ -150,7 +186,6 @@
         e.preventDefault();
         const url = document.getElementById('video-url').value;
         const videoId = extractYouTubeID(url);
-
         if (videoId) {
             if (player.getPlayerState() === -1 || player.getPlayerState() === YT.PlayerState.ENDED) {
                 player.loadVideoById(videoId);
@@ -177,6 +212,65 @@
         const match = url.match(regex);
         return match ? match[1] : null;
     }
+
+    // Weather fetch + emoji mapping
+    window.addEventListener('DOMContentLoaded', () => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    fetch('/weather', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ lat: latitude, lon: longitude })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            showWeatherError("Weather unavailable");
+                        } else {
+                            document.getElementById('weather-box').querySelector('h3').innerText = `Weather in ${data.location}`;
+                            document.getElementById('location').innerText = data.location;
+                            document.getElementById('temperature').innerText = `${data.temperature}°C / ${(data.temperature * 9/5 + 32).toFixed(1)}°F`;
+                            document.getElementById('description').innerText = data.description;
+
+                            const moodEmojis = {
+                                'focus': '🎯 Focused',
+                                'chill': '🎵 Chill Vibes',
+                                'energized': '⚡ Energized',
+                                'upbeat': '😊 Upbeat',
+                                'lofi': '🎶 Lo-Fi',
+                                'stressed': '😰 Stressed',
+                                'nature': '🌿 Nature',
+                                'jazz': '🎷 Jazz',
+                                'classical': '🎻 Classical',
+                                'ambient': '🌌 Ambient'
+                            };
+                            const moodDisplay = moodEmojis[data.suggested_mood] || data.suggested_mood;
+
+                            document.getElementById('suggested-mood').innerHTML = `<strong>Suggested vibe:</strong> ${moodDisplay}`;
+                            document.getElementById('weather-mood-input').value = data.suggested_mood;
+                            document.getElementById('weather-vibe-form').style.display = 'block';
+                        }
+                    })
+                    .catch(() => showWeatherError("Error fetching weather"));
+                },
+                () => showWeatherError("Location denied")
+            );
+        } else {
+            showWeatherError("Geolocation not supported");
+        }
+
+        function showWeatherError(message) {
+            const box = document.getElementById('weather-box');
+            box.querySelector('h3').innerText = message;
+            box.querySelector('#location').innerText = '';
+            document.getElementById('temperature').innerText = '';
+            document.getElementById('description').innerText = '';
+            document.getElementById('suggested-mood').innerText = '';
+            document.getElementById('weather-vibe-form').style.display = 'none';
+        }
+    });
 </script>
 </body>
 </html>
