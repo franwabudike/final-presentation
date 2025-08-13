@@ -1,15 +1,48 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_socketio import SocketIO, join_room, emit
+from reg_form import RegistrationForm
+from flask_behind_proxy import FlaskBehindProxy
+from flask_sqlalchemy import SQLAlchemy
+from db_model import User, db
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+import os
 import requests
 import re
 import uuid
 
+#APP SETUP
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 socketio = SocketIO(app)
+app.config['SECRET_KEY'] = 'your_secret_key_here'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///VibeRoom.db' #creating database
+app.config['UPLOAD_FOLDER'] = 'static/profile_pics' #photo for profile photo uploads to go
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit for images
 
+# Create folder for profile pic uploads if it doesn't exist
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Initialize extensions
+db.init_app(app)
+# Create tables
+with app.app_context():
+    db.create_all()
+#create login manager
+login_manager = LoginManager()
+login_manager.login_view = 'login' #redirects to this page when trying to enter a login required page
+login_manager.init_app(app)
+
+#load user
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+"""
 # USERS
 users = {'testuser': 'password123'}
+"""
 
 # PLAYLISTS DATA (YouTube embed/watch/short URLs are fine)
 playlists_data = [
@@ -50,7 +83,7 @@ def extract_youtube_id(url: str) -> str | None:
 
 # WEATHER FUNCTION
 def get_weather_by_coords(lat, lon):
-    api_key = "213472c9a0bda2052a29f3cf29d1af3d"
+    api_key = "694bbb3ec4acb90f992d7f19a33153bc"
     url = f"http://api.weatherstack.com/current?access_key={api_key}&query={lat},{lon}"
     try:
         response = requests.get(url, timeout=10)
@@ -79,10 +112,11 @@ def get_weather_by_coords(lat, lon):
             return {"error": "Weather data not found"}
     except Exception as e:
         return {"error": str(e)}
-
+"""
 @app.context_processor
 def inject_user():
     return dict(user=session.get('user'))
+"""
 
 # ROUTES
 @app.route('/')
@@ -107,39 +141,83 @@ def contact():
 
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
-    return render_template('auth.html')
+    form = RegistrationForm()  # Create the form instance
+    error = None
+    return render_template('auth.html', error=error, form=form)
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    if username in users and users[username] == password:
-        session['user'] = username
-        flash(f'✅ Welcome back, {username}!')
-        return redirect(url_for('home'))
-    else:
-        flash('❌ Invalid login credentials')
-        return redirect(url_for('auth'))
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first() #find user using username
+
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid Creditials')
+            return redirect(url_for('auth'))  # Redirect back to auth page    
+    return render_template('login.html')
 
 @app.route('/register', methods=['POST'])
 def register():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    if username in users:
-        flash('❌ Username already exists. Try a different one.')
-        return redirect(url_for('auth'))
-    users[username] = password
-    session['user'] = username
-    flash('✅ Registration successful. Welcome!')
-    return redirect(url_for('home'))
+    form = RegistrationForm()
+    if request.method == 'POST' and form.validate_on_submit():
+
+        # Check if username already exists
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different one.', 'error')
+            return redirect(url_for('register'))
+        
+        # Check if email already exists
+        existing_email = User.query.filter_by(email=form.email.data).first()
+        if existing_email:
+            flash('Email already registered. Please use a different email.', 'error')
+            return redirect(url_for('register'))
+
+        # Handle profile picture upload
+        picture_file = request.files['picture']
+        if picture_file and picture_file.filename != '':
+            filename = secure_filename(picture_file.filename)
+            picture_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            picture_file.save(picture_path)
+        else:
+            filename = "default_pfp.jpeg"
+
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+
+        # Create new user
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password=hashed_password,
+            picture=filename
+        )
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash(f'Account created for {form.username.data}!', 'success')
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occured while creating your account. Please try again.', 'error')
+            return redirect(url_for('register')) #render_template('auth.htm', title='Register', form=form)
+    # in case form fails or GET request
+    return render_template('auth.html', title='Register', form=form)
 
 @app.route('/logout')
+@login_required
 def logout():
-    session.pop('user', None)
+    logout_user()
     flash('👋 You’ve been logged out.')
     return redirect(url_for('home'))
 
 @app.route('/playlists')
+@login_required
 def playlists():
     mood = request.args.get('mood', 'all')
     platform = request.args.get('platform', 'all')
@@ -149,6 +227,7 @@ def playlists():
     ]
     return render_template('playlists.html', playlists=filtered, mood=mood, platform=platform)
 
+#playing embedded video
 @app.route('/viberoom/<playlist_id>')
 def viberoom(playlist_id):
     playlist = next((p for p in playlists_data if p['id'] == playlist_id), None)
@@ -171,6 +250,7 @@ def viberoom(playlist_id):
 
     return render_template('viberoom.html', playlist=playlist, video_id=video_id, queue=queue)
 
+#weather API route
 @app.route('/weather', methods=['POST'])
 def weather_by_location():
     data = request.get_json()
@@ -183,10 +263,12 @@ def weather_by_location():
 
 # ROOMS
 @app.route('/rooms')
+@login_required
 def rooms_page():
     return render_template('rooms.html', rooms=rooms)
 
 @app.route('/create_room', methods=['POST'])
+@login_required
 def create_room():
     room_name = request.form.get('room_name')
     username = session.get('user', 'guest')

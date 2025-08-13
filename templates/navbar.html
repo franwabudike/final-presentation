@@ -1,3 +1,19 @@
+<style>
+    .header .user-picture {
+        width: 40px;           /* Set desired width */
+        height: 40px;          /* Set desired height */
+        border-radius: 50%;    /* Makes the image circular */
+        object-fit: cover;     /* Ensures image fills the circle properly */
+        border: 2px solid #ddd; /* Optional: adds a subtle border */
+        margin-right: 10px;    /* Optional: adds space between image and username */
+        vertical-align: middle; /* Aligns with text baseline */
+    }
+.user-picture:hover {
+border-color: #00ff40; /* Change border color on hover */
+cursor: pointer;
+}        
+
+</style> 
 <header class="header">
     <div class="logo"><a href="{{ url_for('home') }}">🎷 VibeRoom</a></div>
 
@@ -8,12 +24,10 @@
         <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
     </nav>
 
-    {% if user %}
+    {% if current_user.is_authenticated %}
         <div class="user-info">
-            {% if profile_pic %}
-                <img src="{{ url_for('static', filename='uploads/' ~ profile_pic) }}" alt="Profile Picture" class="profile-pic">
-            {% endif %}
-            <span class="user-name">Hi, {{ user }}</span>
+            <img class="user-picture" src="{{ url_for('static', filename='profile_pics/' + current_user.picture) }}"></img>
+            <span class="user-name">Hi, {{ current_user.username }}</span>
             <a href="{{ url_for('logout') }}" class="get-started">Logout</a>
         </div>
     {% else %}

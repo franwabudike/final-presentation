@@ -30,7 +30,7 @@
     <script>
         const socket = io();
         const room = "{{ room_id }}";
-        const username = "{{ user or 'Guest' }}";
+        const username = "{{ current_user.username or 'Guest' }}";
 
         socket.emit('join', { room: room, username: username });
 
